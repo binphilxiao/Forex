@@ -4,6 +4,12 @@ fxcm_data/
 # Ignore log files and reports
 logs/
 
+# Ignore virtual environments
+.venv/
+venv/
+env/
+ENV/
+
 # Ignore Python cache files
 __pycache__/
 *.pyc
