@@ -1,7 +1,7 @@
 # Ignore FXCM data directory
 fxcm_data/
 
-# Ignore log files
+# Ignore log files and reports
 logs/
 
 # Ignore Python cache files
