@@ -8,15 +8,16 @@ FXCM 数据完整性检查器
 这个脚本用于检查已下载的FXCM历史数据的完整性，生成可视化报告。
 
 功能特点:
-- 扫描所有货币对的M1和D1数据
+- 扫描所有货币对的M1、M5、M15、M30、H1和D1数据
 - 检查缺失的周/年数据
 - 统计文件大小和记录数量
 - 生成HTML可视化报告
 - 提供数据质量分析
+- 支持多时间周期数据检查
 
 作者: AI Assistant
 创建时间: 2025-10-03
-版本: 1.0.0
+版本: 1.0.1
 """
 
 import pandas as pd
@@ -34,7 +35,9 @@ class FXCMDataChecker:
         """初始化检查器"""
         self.base_path = Path('fxcm_data')
         self.instruments = ['EURUSD', 'USDCAD', 'GBPUSD', 'USDCHF', 'AUDUSD', 'USDJPY']
-        self.timeframes = ['M1', 'D1']
+        self.timeframes = ['M1', 'M5', 'M15', 'M30', 'H1', 'D1']
+        self.weekly_timeframes = ['M1', 'M5', 'M15', 'M30', 'H1']  # 按周存储的时间周期
+        self.yearly_timeframes = ['D1']  # 按年存储的时间周期
         self.start_year = 2015
         self.end_year = 2025
         
@@ -73,9 +76,9 @@ class FXCMDataChecker:
         self.logger = logging.getLogger(__name__)
         self.logger.info(f"数据检查开始 - 日志文件: {log_file}")
         
-    def check_m1_data(self, instrument, year):
-        """检查M1数据完整性"""
-        year_path = self.base_path / instrument / 'M1' / str(year)
+    def check_weekly_data(self, instrument, timeframe, year):
+        """检查按周存储的时间周期数据完整性（M1, M5, M15, M30, H1）"""
+        year_path = self.base_path / instrument / timeframe / str(year)
         
         found_weeks = []
         missing_weeks = []
@@ -118,9 +121,9 @@ class FXCMDataChecker:
             'completeness_rate': len(found_weeks) / 52 * 100
         }
     
-    def check_d1_data(self, instrument):
-        """检查D1数据完整性"""
-        d1_path = self.base_path / instrument / 'D1'
+    def check_yearly_data(self, instrument, timeframe):
+        """检查按年存储的时间周期数据完整性（D1）"""
+        timeframe_path = self.base_path / instrument / timeframe
         
         found_years = []
         missing_years = []
@@ -128,7 +131,7 @@ class FXCMDataChecker:
         
         # 检查每年的数据
         for year in range(self.start_year, self.end_year + 1):
-            year_file = d1_path / f'{year}.csv'
+            year_file = timeframe_path / f'{year}.csv'
             
             if year_file.exists():
                 try:
@@ -172,61 +175,78 @@ class FXCMDataChecker:
         for instrument in self.instruments:
             self.logger.info(f"检查货币对: {instrument}")
             
+            # 为每个时间周期初始化统计数据
             instrument_stats = {
-                'M1': {},
-                'D1': {},
                 'total_size_mb': 0.0,
                 'total_records': 0,
                 'total_files': 0,
                 'missing_files': 0
             }
             
-            # 检查M1数据
-            self.logger.info(f"  检查 M1 数据...")
-            for year in range(self.start_year, self.end_year + 1):
-                m1_result = self.check_m1_data(instrument, year)
-                instrument_stats['M1'][year] = m1_result
+            # 为每个时间周期初始化数据结构
+            for timeframe in self.timeframes:
+                instrument_stats[timeframe] = {}
+            
+            # 检查按周存储的时间周期数据
+            for timeframe in self.weekly_timeframes:
+                self.logger.info(f"  检查 {timeframe} 数据...")
+                
+                timeframe_path = self.base_path / instrument / timeframe
+                if not timeframe_path.exists():
+                    self.logger.warning(f"  ⚠️ {timeframe} 目录不存在: {timeframe_path}")
+                    continue
+                
+                for year in range(self.start_year, self.end_year + 1):
+                    timeframe_result = self.check_weekly_data(instrument, timeframe, year)
+                    instrument_stats[timeframe][year] = timeframe_result
+                    
+                    # 累计统计
+                    for file_stat in timeframe_result['file_stats']:
+                        instrument_stats['total_size_mb'] += file_stat['size_mb']
+                        instrument_stats['total_records'] += file_stat['records']
+                        instrument_stats['total_files'] += 1
+                    
+                    instrument_stats['missing_files'] += timeframe_result['missing_files']
+                    
+                    # 记录缺失数据
+                    for missing_week in timeframe_result['missing_weeks']:
+                        self.stats['missing_data'].append({
+                            'instrument': instrument,
+                            'timeframe': timeframe,
+                            'year': year,
+                            'week': missing_week,
+                            'file_path': f"fxcm_data/{instrument}/{timeframe}/{year}/week_{missing_week:02d}.csv"
+                        })
+            
+            # 检查按年存储的时间周期数据
+            for timeframe in self.yearly_timeframes:
+                self.logger.info(f"  检查 {timeframe} 数据...")
+                
+                timeframe_path = self.base_path / instrument / timeframe
+                if not timeframe_path.exists():
+                    self.logger.warning(f"  ⚠️ {timeframe} 目录不存在: {timeframe_path}")
+                    continue
+                
+                timeframe_result = self.check_yearly_data(instrument, timeframe)
+                instrument_stats[timeframe] = timeframe_result
                 
                 # 累计统计
-                for file_stat in m1_result['file_stats']:
+                for file_stat in timeframe_result['file_stats']:
                     instrument_stats['total_size_mb'] += file_stat['size_mb']
                     instrument_stats['total_records'] += file_stat['records']
                     instrument_stats['total_files'] += 1
                 
-                instrument_stats['missing_files'] += m1_result['missing_files']
+                instrument_stats['missing_files'] += timeframe_result['missing_files']
                 
                 # 记录缺失数据
-                for missing_week in m1_result['missing_weeks']:
+                for missing_year in timeframe_result['missing_years']:
                     self.stats['missing_data'].append({
                         'instrument': instrument,
-                        'timeframe': 'M1',
-                        'year': year,
-                        'week': missing_week,
-                        'file_path': f"fxcm_data/{instrument}/M1/{year}/week_{missing_week:02d}.csv"
+                        'timeframe': timeframe,
+                        'year': missing_year,
+                        'week': None,
+                        'file_path': f"fxcm_data/{instrument}/{timeframe}/{missing_year}.csv"
                     })
-            
-            # 检查D1数据
-            self.logger.info(f"  检查 D1 数据...")
-            d1_result = self.check_d1_data(instrument)
-            instrument_stats['D1'] = d1_result
-            
-            # 累计D1统计
-            for file_stat in d1_result['file_stats']:
-                instrument_stats['total_size_mb'] += file_stat['size_mb']
-                instrument_stats['total_records'] += file_stat['records']
-                instrument_stats['total_files'] += 1
-            
-            instrument_stats['missing_files'] += d1_result['missing_files']
-            
-            # 记录D1缺失数据
-            for missing_year in d1_result['missing_years']:
-                self.stats['missing_data'].append({
-                    'instrument': instrument,
-                    'timeframe': 'D1',
-                    'year': missing_year,
-                    'week': None,
-                    'file_path': f"fxcm_data/{instrument}/D1/{missing_year}.csv"
-                })
             
             # 保存到总统计
             self.stats['by_instrument'][instrument] = instrument_stats
@@ -240,10 +260,12 @@ class FXCMDataChecker:
                            f"{instrument_stats['total_size_mb']:.1f} MB")
         
         # 计算总期望文件数
-        # M1: 6 instruments × 11 years × 52 weeks = 3432 files
-        # D1: 6 instruments × 11 years = 66 files
-        # Total: 3498 files
-        self.stats['total_files_expected'] = 6 * 11 * 52 + 6 * 11
+        # 按周存储的时间周期: M1, M5, M15, M30, H1 = 5 × 6 instruments × 11 years × 52 weeks = 17160 files
+        # 按年存储的时间周期: D1 = 1 × 6 instruments × 11 years = 66 files  
+        # Total: 17226 files
+        weekly_files = len(self.weekly_timeframes) * 6 * 11 * 52
+        yearly_files = len(self.yearly_timeframes) * 6 * 11
+        self.stats['total_files_expected'] = weekly_files + yearly_files
         
         self.logger.info(f"总计: {self.stats['total_files_found']}/{self.stats['total_files_expected']} 文件")
         self.logger.info(f"缺失: {self.stats['total_files_missing']} 文件")
@@ -391,7 +413,7 @@ class FXCMDataChecker:
 <body>
     <div class="container">
         <div class="header">
-            <h1>📊 FXCM 数据完整性报告</h1>
+            <h1>📊 FXCM 多时间周期数据完整性报告</h1>
             <p>生成时间: {timestamp}</p>
         </div>
         
@@ -435,7 +457,10 @@ class FXCMDataChecker:
 """
         
         for instrument, data in self.stats['by_instrument'].items():
-            total_expected = 11 * 52 + 11  # M1 + D1 expected files
+            # 计算该货币对的期望文件数：5个按周时间周期 + 1个按年时间周期
+            weekly_expected = len(self.weekly_timeframes) * 11 * 52  # 按周时间周期
+            yearly_expected = len(self.yearly_timeframes) * 11        # 按年时间周期
+            total_expected = weekly_expected + yearly_expected
             completeness = (data['total_files'] / total_expected) * 100
             
             completeness_class = 'completeness-high'
@@ -466,47 +491,48 @@ class FXCMDataChecker:
         </div>
 """
         
-        # M1数据完整性热力图
+        # 按周时间周期数据完整性热力图
         html_content += """
         <div class="section">
-            <h2>📅 M1 数据完整性矩阵 (按年/周)</h2>
+            <h2>📅 按周时间周期数据完整性矩阵 (按年/周)</h2>
             <p>绿色表示数据存在，红色表示数据缺失</p>
 """
         
         for instrument in self.instruments:
-            html_content += f"""
-            <h3>{instrument} - M1数据</h3>
+            for timeframe in self.weekly_timeframes:
+                html_content += f"""
+            <h3>{instrument} - {timeframe}数据</h3>
             <table style="font-size: 0.8em;">
                 <thead>
                     <tr>
                         <th>年份</th>
 """
-            
-            # 表头：周数
-            for week in range(1, 53):
-                html_content += f'<th style="width: 20px; text-align: center;">{week}</th>'
-            
-            html_content += """
+                
+                # 表头：周数
+                for week in range(1, 53):
+                    html_content += f'<th style="width: 20px; text-align: center;">{week}</th>'
+                
+                html_content += """
                     </tr>
                 </thead>
                 <tbody>
 """
-            
-            # 每年的数据
-            for year in range(self.start_year, self.end_year + 1):
-                html_content += f'<tr><td><strong>{year}</strong></td>'
                 
-                m1_data = self.stats['by_instrument'][instrument]['M1'].get(year, {})
-                found_weeks = m1_data.get('found_weeks', [])
+                # 每年的数据
+                for year in range(self.start_year, self.end_year + 1):
+                    html_content += f'<tr><td><strong>{year}</strong></td>'
+                    
+                    timeframe_data = self.stats['by_instrument'][instrument].get(timeframe, {}).get(year, {})
+                    found_weeks = timeframe_data.get('found_weeks', [])
+                    
+                    for week in range(1, 53):
+                        color = '#28a745' if week in found_weeks else '#dc3545'
+                        title = f'{instrument} {timeframe} {year} Week {week}: {"✓" if week in found_weeks else "✗"}'
+                        html_content += f'<td style="background-color: {color}; color: white; text-align: center; cursor: help;" title="{title}">{"✓" if week in found_weeks else "✗"}</td>'
+                    
+                    html_content += '</tr>'
                 
-                for week in range(1, 53):
-                    color = '#28a745' if week in found_weeks else '#dc3545'
-                    title = f'{instrument} {year} Week {week}: {"✓" if week in found_weeks else "✗"}'
-                    html_content += f'<td style="background-color: {color}; color: white; text-align: center; cursor: help;" title="{title}">{"✓" if week in found_weeks else "✗"}</td>'
-                
-                html_content += '</tr>'
-            
-            html_content += '</tbody></table><br>'
+                html_content += '</tbody></table><br>'
         
         html_content += '</div>'
         
@@ -525,28 +551,26 @@ class FXCMDataChecker:
             for instrument, missing_items in missing_by_instrument.items():
                 html_content += f'<h3>{instrument}</h3>'
                 
-                # 分M1和D1显示
-                m1_missing = [item for item in missing_items if item['timeframe'] == 'M1']
-                d1_missing = [item for item in missing_items if item['timeframe'] == 'D1']
-                
-                if m1_missing:
-                    html_content += f'<h4>M1 数据缺失 ({len(m1_missing)} 个文件)</h4>'
-                    for item in m1_missing[:20]:  # 只显示前20个
-                        html_content += f'<div class="missing-item">{item["file_path"]}</div>'
-                    if len(m1_missing) > 20:
-                        html_content += f'<p>... 还有 {len(m1_missing) - 20} 个缺失文件</p>'
-                
-                if d1_missing:
-                    html_content += f'<h4>D1 数据缺失 ({len(d1_missing)} 个文件)</h4>'
-                    for item in d1_missing:
-                        html_content += f'<div class="missing-item">{item["file_path"]}</div>'
+                # 按时间周期分组显示缺失数据
+                for timeframe in self.timeframes:
+                    tf_missing = [item for item in missing_items if item['timeframe'] == timeframe]
+                    
+                    if tf_missing:
+                        html_content += f'<h4>{timeframe} 数据缺失 ({len(tf_missing)} 个文件)</h4>'
+                        display_limit = 20 if timeframe in self.weekly_timeframes else len(tf_missing)
+                        
+                        for item in tf_missing[:display_limit]:
+                            html_content += f'<div class="missing-item">{item["file_path"]}</div>'
+                        
+                        if len(tf_missing) > display_limit:
+                            html_content += f'<p>... 还有 {len(tf_missing) - display_limit} 个缺失文件</p>'
         
         html_content += '</div>'
         
         # 结尾
         html_content += f"""
         <div class="footer">
-            <p>FXCM 数据完整性检查器 v1.0.0 | 生成时间: {timestamp}</p>
+            <p>FXCM 数据完整性检查器 v2.0.0 | 生成时间: {timestamp}</p>
             <p>数据路径: {self.base_path.absolute()}</p>
         </div>
     </div>
@@ -570,7 +594,7 @@ class FXCMDataChecker:
         report_data = {
             'metadata': {
                 'generated_at': datetime.now().isoformat(),
-                'script_version': '1.0.0',
+                'script_version': '2.0.0',
                 'data_path': str(self.base_path.absolute()),
                 'instruments': self.instruments,
                 'timeframes': self.timeframes,
@@ -643,7 +667,7 @@ class FXCMDataChecker:
 
 def main():
     """主函数"""
-    print("FXCM 数据完整性检查器 v1.0.0")
+    print("FXCM 数据完整性检查器 v2.0.0")
     print("="*40)
     
     checker = FXCMDataChecker()

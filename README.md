@@ -466,7 +466,7 @@ class FXCMMultiTimeframeConverter:
 
 ## 更新日志
 
-### v2.0.0 (2025-10-03)
+### v1.0.1 (2025-10-03)
 - 🚀 **多时间周期转换** - 新增 `convert_m1_to_multi_timeframes.py` 脚本
 - ✅ **四个新时间周期** - 支持 M5、M15、M30、H1 数据转换
 - ✅ **精确时间对齐** - 严格按照时间边界对齐聚合数据
@@ -500,4 +500,4 @@ class FXCMMultiTimeframeConverter:
 
 ---
 
-**最后更新**: 2025年10月3日 v2.0.0
+**最后更新**: 2025年10月3日 v1.0.1
