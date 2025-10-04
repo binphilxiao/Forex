@@ -9,6 +9,9 @@ python download_fxcm_candles.py
 """
 
 import os
+import sys
+import io
+import json
 import requests
 import gzip
 import pandas as pd
@@ -17,20 +20,37 @@ import time
 from pathlib import Path
 import logging
 
-# 配置参数
-INSTRUMENTS = ['EURUSD', 'USDCAD', 'GBPUSD', 'USDCHF', 'AUDUSD', 'USDJPY']
+# 设置标准输出编码为UTF-8，避免Windows控制台编码问题
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
+# 读取配置文件（如果存在）
+config_file = Path(__file__).parent.parent / 'config' / 'download_config.json'
+if config_file.exists():
+    with open(config_file, 'r', encoding='utf-8') as f:
+        config = json.load(f)
+    INSTRUMENTS = config.get('pairs', ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'USDCAD', 'USDCHF'])
+    START_YEAR = config.get('start_year', 2015)
+    END_YEAR = config.get('end_year', 2021)
+    RETRY_ENABLED = config.get('retry_enabled', True)
+    MAX_RETRIES = config.get('retry_times', 3) if RETRY_ENABLED else 1
+else:
+    # 默认配置
+    INSTRUMENTS = ['EURUSD', 'USDCAD', 'GBPUSD', 'USDCHF', 'AUDUSD', 'USDJPY']
+    START_YEAR = 2015
+    END_YEAR = 2021
+    RETRY_ENABLED = True
+    MAX_RETRIES = 3
+
 TIMEFRAMES = {
     'M1': 1,      # 1分钟
     'D1': 1440    # 1天
 }
 
-# 下载近10年的数据
-START_YEAR = 2015
-END_YEAR = 2025
-
 # 数据保存路径
-OUTPUT_DIR = Path('fxcm_data')
-LOG_DIR = Path('logs')
+OUTPUT_DIR = Path(__file__).parent.parent / 'fxcm_data'
+LOG_DIR = Path(__file__).parent.parent / 'logs'
 
 class FXCMDataDownloader:
     def __init__(self):
@@ -205,6 +225,9 @@ class FXCMDataDownloader:
         print(f"货币对: {', '.join(INSTRUMENTS)}")
         print(f"时间周期: {', '.join(TIMEFRAMES.keys())}")
         print(f"年份范围: {START_YEAR} - {END_YEAR}")
+        print(f"失败重试: {'是' if RETRY_ENABLED else '否'}")
+        if RETRY_ENABLED:
+            print(f"重试次数: {MAX_RETRIES}")
         print(f"保存路径: {OUTPUT_DIR.absolute()}")
         print("="*60)
         
@@ -243,7 +266,7 @@ class FXCMDataDownloader:
                                 continue
                             
                             print(f"  Week {week}/52...", end=' ')
-                            df = self.download_week_data(instrument, year, week, timeframe='m1')
+                            df = self.download_week_data(instrument, year, week, timeframe='m1', max_retries=MAX_RETRIES)
                             
                             if df is not None and not df.empty:
                                 # 保存到: EURUSD/M1/2019/week_01.csv

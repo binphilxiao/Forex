@@ -20,6 +20,8 @@ FXCM 数据完整性检查器
 版本: 1.0.2
 """
 
+import sys
+import io
 import pandas as pd
 from pathlib import Path
 import json
@@ -28,12 +30,17 @@ import logging
 from collections import defaultdict
 import os
 
+# 设置标准输出编码为UTF-8，避免Windows控制台编码问题
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 class FXCMDataChecker:
     """FXCM数据完整性检查器"""
     
     def __init__(self):
         """初始化检查器"""
-        self.base_path = Path('fxcm_data')
+        self.base_path = Path(__file__).parent.parent / 'fxcm_data'
         self.instruments = ['EURUSD', 'USDCAD', 'GBPUSD', 'USDCHF', 'AUDUSD', 'USDJPY']
         self.timeframes = ['M1', 'M5', 'M15', 'M30', 'H1', 'D1']
         self.weekly_timeframes = ['M1', 'M5', 'M15', 'M30', 'H1']  # 按周存储的时间周期
@@ -59,7 +66,7 @@ class FXCMDataChecker:
     def setup_logging(self):
         """设置日志系统"""
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        log_dir = Path('logs')
+        log_dir = Path(__file__).parent.parent / 'logs'
         log_dir.mkdir(exist_ok=True)
         
         log_file = log_dir / f'data_check_{timestamp}.log'
@@ -580,7 +587,7 @@ class FXCMDataChecker:
         
         # 保存HTML文件到logs目录
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        report_file = Path('logs') / f'fxcm_data_report_{timestamp}.html'
+        report_file = Path(__file__).parent.parent / 'logs' / f'fxcm_data_report_{timestamp}.html'
         report_file.parent.mkdir(exist_ok=True)  # 确保logs目录存在
         
         with open(report_file, 'w', encoding='utf-8') as f:
@@ -605,7 +612,7 @@ class FXCMDataChecker:
         }
         
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        json_file = Path('logs') / f'fxcm_data_report_{timestamp}.json'
+        json_file = Path(__file__).parent.parent / 'logs' / f'fxcm_data_report_{timestamp}.json'
         json_file.parent.mkdir(exist_ok=True)  # 确保logs目录存在
         
         with open(json_file, 'w', encoding='utf-8') as f:
@@ -661,9 +668,13 @@ class FXCMDataChecker:
             print()
             print("💡 提示: 打开HTML报告文件查看详细的可视化分析")
             
+            # 返回HTML文件路径
+            return str(html_file.absolute())
+            
         except Exception as e:
             self.logger.error(f"分析过程中出现错误: {e}")
             print(f"❌ 错误: {e}")
+            return None
 
 def main():
     """主函数"""
@@ -671,7 +682,10 @@ def main():
     print("="*40)
     
     checker = FXCMDataChecker()
-    checker.run_analysis()
+    report_path = checker.run_analysis()
+    
+    # 注意：不在这里打开报告，由调用方（如Flask）决定是否打开
+    # 这样可以避免在Web界面调用时重复打开两次
 
 if __name__ == '__main__':
     main()

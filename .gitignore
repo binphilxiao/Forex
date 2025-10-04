@@ -4,6 +4,9 @@ fxcm_data/
 # Ignore log files and reports
 logs/
 
+# Ignore configuration files in root (should be in config/)
+download_config.json
+
 # Ignore Python cache files
 __pycache__/
 *.pyc

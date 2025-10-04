@@ -1,0 +1,14 @@
+{
+  "pairs": [
+    "EURUSD",
+    "GBPUSD",
+    "USDJPY",
+    "AUDUSD",
+    "USDCAD",
+    "USDCHF"
+  ],
+  "start_year": 2015,
+  "end_year": 2025,
+  "retry_enabled": true,
+  "retry_times": 5
+}
