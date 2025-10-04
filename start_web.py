@@ -61,7 +61,7 @@ def main():
     """主函数"""
     print("=" * 60)
     print("   FXCM 数据处理系统 - Web界面启动器")
-    print("   版本: 3.0.0 (Flask)")
+    print("   版本: 3.0.1 (Flask)")
     print("=" * 60)
     print()
     
@@ -77,9 +77,23 @@ def main():
         input("\n按任意键退出...")
         return
     
-    # 启动Flask应用
+    # 启动Flask应用并自动打开浏览器
     print("🚀 启动Web服务器...")
+    print("🌐 浏览器将在1.5秒后自动打开...")
     print()
+    
+    # 延迟打开浏览器
+    import threading
+    import webbrowser
+    import time
+    
+    def open_browser():
+        time.sleep(1.5)  # 等待服务器启动
+        print("🔗 正在打开浏览器...")
+        webbrowser.open('http://127.0.0.1:5000')
+    
+    # 在后台线程打开浏览器
+    threading.Thread(target=open_browser, daemon=True).start()
     
     try:
         subprocess.run([sys.executable, 'flask_app.py'])

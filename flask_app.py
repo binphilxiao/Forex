@@ -206,7 +206,7 @@ def static_files(filename):
 if __name__ == '__main__':
     print("=" * 60)
     print("🚀 FXCM 数据处理系统 - Web界面")
-    print("版本: 3.0.0 (Flask)")
+    print("版本: 3.0.1 (Flask)")
     print("=" * 60)
     print()
     print("🌐 访问地址: http://localhost:5000")
@@ -215,5 +215,20 @@ if __name__ == '__main__':
     print("按 Ctrl+C 停止服务器")
     print("=" * 60)
     print()
+    
+    # 自动打开浏览器
+    import webbrowser
+    import threading
+    import time
+    
+    def open_browser():
+        time.sleep(1.5)  # 等待服务器完全启动
+        try:
+            webbrowser.open('http://127.0.0.1:5000')
+            print("🔗 浏览器已自动打开\n")
+        except:
+            print("⚠️ 无法自动打开浏览器，请手动访问: http://127.0.0.1:5000\n")
+    
+    threading.Thread(target=open_browser, daemon=True).start()
     
     app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)
