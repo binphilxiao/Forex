@@ -359,17 +359,21 @@ class FXCMWebInterface:
         
         def download_worker():
             try:
-                downloader = FXCMDataDownloader()
-                # 这里需要修改下载器以支持进度回调
-                downloader.download_all_data()
-                st.session_state.task_status = "下载完成"
+                # 使用子进程而不是直接导入，避免Streamlit上下文问题
+                result = subprocess.run([
+                    sys.executable, 
+                    'download_fxcm_candles.py'
+                ], capture_output=True, text=True, cwd=Path.cwd())
+                
+                if result.returncode == 0:
+                    self._set_task_result("下载完成", True)
+                else:
+                    self._set_task_result(f"下载失败: {result.stderr[:100]}", False)
             except Exception as e:
-                st.session_state.task_status = f"下载失败: {str(e)}"
-            finally:
-                st.session_state.task_running = False
+                self._set_task_result(f"下载失败: {str(e)}", False)
                 
         # 在后台线程中运行下载
-        thread = threading.Thread(target=download_worker)
+        thread = threading.Thread(target=download_worker, name="download_worker")
         thread.daemon = True
         thread.start()
         
@@ -384,15 +388,20 @@ class FXCMWebInterface:
         
         def conversion_worker():
             try:
-                converter = FXCMMultiTimeframeConverter()
-                converter.process_all()
-                st.session_state.task_status = "转换完成"
-            except Exception as e:
-                st.session_state.task_status = f"转换失败: {str(e)}"
-            finally:
-                st.session_state.task_running = False
+                # 使用子进程而不是直接导入，避免Streamlit上下文问题
+                result = subprocess.run([
+                    sys.executable, 
+                    'convert_m1_to_multi_timeframes.py'
+                ], capture_output=True, text=True, cwd=Path.cwd())
                 
-        thread = threading.Thread(target=conversion_worker)
+                if result.returncode == 0:
+                    self._set_task_result("转换完成", True)
+                else:
+                    self._set_task_result(f"转换失败: {result.stderr[:100]}", False)
+            except Exception as e:
+                self._set_task_result(f"转换失败: {str(e)}", False)
+                
+        thread = threading.Thread(target=conversion_worker, name="conversion_worker")
         thread.daemon = True
         thread.start()
         
@@ -406,21 +415,48 @@ class FXCMWebInterface:
         
         def analysis_worker():
             try:
-                checker = FXCMDataChecker()
-                stats = checker.analyze_data_completeness()
-                st.session_state.data_stats = stats
-                st.session_state.task_status = "分析完成"
-            except Exception as e:
-                st.session_state.task_status = f"分析失败: {str(e)}"
-            finally:
-                st.session_state.task_running = False
+                # 使用子进程而不是直接导入，避免Streamlit上下文问题
+                result = subprocess.run([
+                    sys.executable, 
+                    'check_data_completeness.py'
+                ], capture_output=True, text=True, cwd=Path.cwd())
                 
-        thread = threading.Thread(target=analysis_worker)
+                if result.returncode == 0:
+                    # 任务成功，通过文件系统通信结果
+                    self._set_task_result("分析完成", True)
+                else:
+                    self._set_task_result(f"分析失败: {result.stderr[:100]}", False)
+            except Exception as e:
+                self._set_task_result(f"分析失败: {str(e)}", False)
+                
+        thread = threading.Thread(target=analysis_worker, name="analysis_worker")
         thread.daemon = True
         thread.start()
         
         st.success("分析任务已启动，请查看实时日志了解进度")
         st.rerun()
+    
+    def _set_task_result(self, status, success):
+        """线程安全地设置任务结果"""
+        # 通过文件系统传递状态，避免直接使用session_state
+        status_file = Path("logs") / "web_task_status.txt"
+        status_file.parent.mkdir(exist_ok=True)
+        with open(status_file, 'w', encoding='utf-8') as f:
+            f.write(f"{status}|{success}")
+    
+    def _get_task_result(self):
+        """获取任务结果"""
+        status_file = Path("logs") / "web_task_status.txt"
+        if status_file.exists():
+            try:
+                with open(status_file, 'r', encoding='utf-8') as f:
+                    content = f.read().strip()
+                    if '|' in content:
+                        status, success = content.split('|', 1)
+                        return status, success.lower() == 'true'
+            except:
+                pass
+        return None, None
     
     def render_download_stats(self):
         """渲染下载统计信息"""
@@ -622,8 +658,21 @@ class FXCMWebInterface:
         
         # 自动刷新（如果有任务在运行）
         if st.session_state.task_running:
+            # 检查任务是否完成
+            self._update_task_status_from_file()
             time.sleep(2)
             st.rerun()
+    
+    def _update_task_status_from_file(self):
+        """从文件系统更新任务状态"""
+        status, success = self._get_task_result()
+        if status is not None:
+            st.session_state.task_status = status
+            st.session_state.task_running = False
+            # 清除状态文件
+            status_file = Path("logs") / "web_task_status.txt"
+            if status_file.exists():
+                status_file.unlink()
 
 def main():
     """主函数"""

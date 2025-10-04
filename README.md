@@ -321,7 +321,7 @@ python run_web_interface.py
 或者直接使用Streamlit启动：
 
 ```powershell
-streamlit run fxcm_web_interface.py
+python run_web_interface.py
 ```
 
 ### 界面功能特点
