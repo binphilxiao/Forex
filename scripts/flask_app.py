@@ -28,7 +28,12 @@ from pathlib import Path
 from datetime import datetime
 import os
 
-app = Flask(__name__)
+# 设置项目根目录
+PROJECT_ROOT = Path(__file__).parent.parent
+
+app = Flask(__name__, 
+            template_folder=str(PROJECT_ROOT / 'templates'),
+            static_folder=str(PROJECT_ROOT / 'static'))
 
 # 全局变量
 current_task_runner = None
@@ -269,7 +274,11 @@ def stop_task():
 @app.route('/static/<path:filename>')
 def static_files(filename):
     """静态文件"""
-    return send_from_directory('static', filename)
+    static_dir = Path(__file__).parent.parent / 'static'
+    if static_dir.exists():
+        return send_from_directory(static_dir, filename)
+    else:
+        return "Static folder not found", 404
 
 @app.route('/report/<path:filename>')
 def serve_report(filename):
