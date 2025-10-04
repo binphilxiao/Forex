@@ -129,7 +129,10 @@ class TaskRunner:
 @app.route('/')
 def index():
     """主页"""
-    return render_template('index.html')
+    import time
+    # 添加时间戳避免缓存
+    version = int(time.time())
+    return render_template('index.html', v=version)
 
 @app.route('/api/start_download', methods=['POST'])
 def start_download():
