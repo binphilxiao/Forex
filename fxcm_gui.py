@@ -268,12 +268,14 @@ class FXCMDataGUI:
             self.status_label.config(text=f"正在{task_name}...")
             
             try:
-                # 运行脚本
+                # 运行脚本 - 明确指定UTF-8编码避免Windows控制台编码问题
                 self.current_process = subprocess.Popen(
                     [sys.executable, script_name],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True,
+                    encoding='utf-8',  # 明确指定UTF-8编码
+                    errors='replace',  # 遇到无法解码的字符用替换字符
                     bufsize=1,
                     universal_newlines=True
                 )
