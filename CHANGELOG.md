@@ -1,5 +1,28 @@
 # 更新日志 (Changelog)
 
+## [4.1.1] - 2025-01-04
+
+### Bug 修复
+- 🐛 **修复脚本文件名错误**: 将 `multi_timeframe_converter.py` 更正为 `convert_m1_to_multi_timeframes.py`
+- 🐛 **修复终端输出问题**: 
+  - 添加 `-u` 参数强制 Python 使用无缓冲输出
+  - 设置 `PYTHONUNBUFFERED=1` 环境变量
+  - 使用 `bufsize=0` 禁用输出缓冲
+  - 合并 stderr 到 stdout 确保所有输出可见
+  - 添加 `flush=True` 强制刷新输出
+- 🔧 **改进错误处理**: 
+  - 添加 `FileNotFoundError` 异常处理
+  - 显示当前工作目录帮助诊断
+  - 打印完整的异常追踪信息
+
+### 改进
+- 📊 所有脚本输出现在实时显示到终端
+- 🎯 显示调用的脚本文件名方便调试
+- ⚡ 使用 `iter(readline, '')` 提高输出读取效率
+- 📝 保留输出的缩进格式
+
+---
+
 ## [4.1.0] - 2025-01-04
 
 ### 新增功能

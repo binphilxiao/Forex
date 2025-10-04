@@ -15,7 +15,7 @@ FXCM 数据处理 Web 界面 (Flask版本)
 
 作者: Claude 4.5
 创建时间: 2025-10-04
-版本: 4.1.0
+版本: 4.1.1
 """
 
 from flask import Flask, render_template, request, jsonify, send_from_directory, make_response
@@ -59,23 +59,28 @@ class TaskRunner:
         
         print(f"\n{'='*60}")
         print(f"🚀 开始{task_name}")
+        print(f"🔧 调用脚本: {script_name}")
         print(f"{'='*60}\n")
         
         try:
+            # 使用PYTHONUNBUFFERED环境变量确保输出不缓冲
+            env = os.environ.copy()
+            env['PYTHONUNBUFFERED'] = '1'
+            
             self.process = subprocess.Popen(
-                [sys.executable, script_name],
+                [sys.executable, '-u', script_name],  # -u 参数强制unbuffered输出
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stderr=subprocess.STDOUT,  # 合并stderr到stdout
                 text=True,
                 encoding='utf-8',
                 errors='replace',
-                bufsize=1,
-                universal_newlines=True
+                bufsize=0,  # 无缓冲
+                env=env
             )
             
             # 实时读取并打印输出到终端
             line_count = 0
-            for line in self.process.stdout:
+            for line in iter(self.process.stdout.readline, ''):
                 if self.should_stop:
                     self.process.terminate()
                     print(f"\n⏹ {task_name}已被用户终止")
@@ -83,9 +88,10 @@ class TaskRunner:
                     task_status['progress'] = 0
                     break
                     
-                line = line.strip()
+                line = line.rstrip()  # 只去掉右侧空白，保留左侧缩进
                 if line:
-                    print(line)  # 直接打印到终端
+                    print(line, flush=True)  # 直接打印到终端并刷新
+                    sys.stdout.flush()  # 强制刷新标准输出
                     line_count += 1
                     # 简单的进度估算
                     if line_count % 10 == 0:
@@ -99,7 +105,7 @@ class TaskRunner:
                             report_file = Path(report_path)
                             if report_file.exists():
                                 task_status['report_file'] = report_file.name  # 只存储文件名
-                                print(f"📋 已捕获报告文件: {report_file.name}")
+                                print(f"📋 已捕获报告文件: {report_file.name}", flush=True)
                         except:
                             pass
             
@@ -110,24 +116,29 @@ class TaskRunner:
                 if return_code == 0:
                     task_status['status'] = f'{task_name}完成'
                     task_status['progress'] = 100
-                    print(f"\n✅ {task_name}成功完成！")
+                    print(f"\n✅ {task_name}成功完成！", flush=True)
                 else:
-                    stderr = self.process.stderr.read()
                     task_status['status'] = f'{task_name}失败'
                     task_status['progress'] = 0
-                    print(f"\n❌ {task_name}失败:")
-                    print(stderr)
+                    print(f"\n❌ {task_name}失败 (退出码: {return_code})", flush=True)
                     
+        except FileNotFoundError:
+            task_status['status'] = f'{task_name}出错'
+            task_status['progress'] = 0
+            print(f"\n❌ 错误: 找不到脚本文件 '{script_name}'", flush=True)
+            print(f"请确认文件存在于当前目录: {os.getcwd()}", flush=True)
         except Exception as e:
             task_status['status'] = f'{task_name}出错'
             task_status['progress'] = 0
-            print(f"\n❌ 错误: {str(e)}")
+            print(f"\n❌ 错误: {str(e)}", flush=True)
+            import traceback
+            traceback.print_exc()
             
         finally:
             if not self.should_stop:
                 task_status['running'] = False
             self.process = None
-            print(f"\n{'='*60}\n")
+            print(f"\n{'='*60}\n", flush=True)
             
     def stop(self):
         """停止任务"""
@@ -207,7 +218,7 @@ def start_conversion():
         return jsonify({'success': False, 'message': '已有任务在运行'})
     
     current_task_runner = TaskRunner()
-    thread = threading.Thread(target=current_task_runner.run_script, args=('multi_timeframe_converter.py', '数据转换'))
+    thread = threading.Thread(target=current_task_runner.run_script, args=('convert_m1_to_multi_timeframes.py', '数据转换'))
     thread.daemon = True
     thread.start()
     
@@ -269,7 +280,7 @@ def serve_report(filename):
 if __name__ == '__main__':
     print("=" * 60)
     print("🚀 FXCM 数据处理系统 - Web界面")
-    print("版本: 4.1.0 (Flask)")
+    print("版本: 4.1.1 (Flask)")
     print("=" * 60)
     print()
     print("🌐 访问地址: http://localhost:5000")

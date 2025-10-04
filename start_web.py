@@ -7,7 +7,7 @@ FXCM Web界面启动脚本
 
 自动检查依赖并启动Flask Web界面
 
-版本: 4.1.0
+版本: 4.1.1
 """
 
 import sys
@@ -61,7 +61,7 @@ def main():
     """主函数"""
     print("=" * 60)
     print("   FXCM 数据处理系统 - Web界面启动器")
-    print("   版本: 4.1.0 (Flask)")
+    print("   版本: 4.1.1 (Flask)")
     print("=" * 60)
     print()
     
