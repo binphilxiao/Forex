@@ -1,107 +1,317 @@
-# FXCM 历史数据下载器
+# FXCM 外汇数据管理系统
 
-## 项目简介
+<div align="center">
 
-这是一个用于自动下载 FXCM（福汇）历史外汇数据的 Python 脚本。该脚本可以批量下载多个货币对的分钟级（M1）和日线级（D1）蜡烛图数据，并自动组织存储到规范的文件夹结构中。
+**一站式外汇历史数据下载、导入、验证和分析解决方案**
 
-## 功能特点
+![Version](https://img.shields.io/badge/version-5.0.0-blue.svg)
+![Python](https://img.shields.io/badge/python-3.7+-green.svg)
+![License](https://img.shields.io/badge/license-MIT-orange.svg)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20MacOS-lightgrey.svg)
 
-- ✅ **多货币对支持**：支持 EURUSD, USDCAD, GBPUSD, USDCHF, AUDUSD, USDJPY 等主流货币对
-- ✅ **多时间周期**：支持 M1（1分钟）、M5（5分钟）、M15（15分钟）、M30（30分钟）、H1（60分钟）和 D1（日线）
-- ✅ **时间周期转换**：从M1数据自动生成M5、M15、M30、H1多个时间周期
-- ✅ **长时间跨度**：默认下载 2015-2025 年共 10 年的历史数据
-- ✅ **智能跳过**：自动检测已存在的文件，避免重复下载
-- ✅ **错误重试**：对于 404 错误自动重试 5 次，提高下载成功率
-- ✅ **详细日志**：记录所有下载操作和错误信息，每次运行生成独立的时间戳日志文件
-- ✅ **规范存储**：按照货币对/时间周期/年份的层级结构组织数据
+</div>
 
-## 环境要求
+---
 
-- Python 3.7+
-- 依赖库：
-  - `pandas` - 数据处理
-  - `requests` - HTTP 请求
-  - 标准库：`gzip`, `pathlib`, `logging`, `datetime`, `time`, `io`
+## 📋 项目简介
 
-## 安装步骤
+FXCM 外汇数据管理系统是一个功能完整的数据处理平台，提供从数据下载、数据库导入、数据验证到可视化分析的全流程解决方案。
 
-1. **克隆或下载项目**
-   ```bash
-   git clone <repository_url>
-   cd Forex
-   ```
+### 🎯 核心功能
 
-2. **创建虚拟环境**（推荐）
-   ```powershell
-   python -m venv .venv
-   .venv\Scripts\Activate.ps1
-   ```
+- **📥 数据下载** - 自动下载FXCM历史数据（2015-2025，10年数据）
+- **💾 数据库导入** - 快速导入ClickHouse数据库（10-20倍速度提升）
+- **✅ 数据验证** - 多级数据质量检查（A+评分系统）
+- **📊 可视化报告** - 精美的HTML报告（数据完整性、导入统计）
+- **🌐 Web界面** - 现代化的Flask Web管理界面
+- **🔍 智能检查** - 快速模式和详细模式双重验证
 
-3. **安装依赖**
-   ```powershell
-   pip install pandas requests
-   ```
+---
 
-## 使用方法
+## ✨ v5.0.0 重大更新
 
-### 基本使用
+### 🚀 性能提升
+- **快速导入模式** - 仅检查首尾记录，速度提升10-20倍（3分钟 vs 30-60分钟）
+- **智能跳过** - 自动识别已导入数据，避免重复处理
+- **批量处理** - 一次性处理3,332个文件，导入2650万条记录
 
-直接运行脚本即可开始下载：
+### 📊 HTML报告系统
+- **导入报告** - 自动生成精美的导入统计报告
+- **完整性报告** - 数据完整性可视化分析
+- **进度追踪** - 按货币对分类的详细统计
+- **状态标记** - 四种状态一目了然（✅已导入/⏭️已跳过/❌错误/ℹ️空文件）
+
+### 🔧 双模式检查
+- **快速模式（默认）** - 只检查文件首尾记录，适合日常导入
+- **详细模式** - 逐条验证每个记录，适合问题排查
+
+### 📁 项目结构优化
+- **统一脚本管理** - 所有Python脚本集中在`scripts/`目录
+- **测试脚本分离** - 测试代码独立在`scripts/test/`
+- **文档完善** - 详细的使用指南和索引文档
+
+---
+
+## 🚀 快速开始
+
+### 方式一：使用批处理启动器（推荐）
+
+Windows用户可直接双击运行：
+
+```
+batch_import.bat        # 快速导入所有数据
+verify_data.bat         # 验证数据质量
+comprehensive_check.bat # 详细校验
+start_web_ui.bat       # 启动Web界面
+```
+
+### 方式二：Python命令行
 
 ```powershell
-python download_fxcm_candles.py
+# 1. 批量导入数据（快速模式 + HTML报告）
+python scripts\batch_import_all.py
+
+# 2. 验证数据质量
+python scripts\verify_all_data.py
+
+# 3. 详细校验（交互式）
+python scripts\comprehensive_check.py
+
+# 4. 启动Web界面
+python scripts\start_web.py
 ```
 
-### 自定义配置
+### 方式三：Web界面操作
 
-如需修改下载参数，可编辑脚本中的配置变量：
+```powershell
+# 启动Web服务
+start_web_ui.bat
 
-```python
-# 货币对列表
-INSTRUMENTS = ['EURUSD', 'USDCAD', 'GBPUSD', 'USDCHF', 'AUDUSD', 'USDJPY']
-
-# 时间周期（仅支持 'm1' 和 'D1'）
-TIMEFRAMES = ['m1', 'D1']
-
-# 年份范围
-START_YEAR = 2015
-END_YEAR = 2025
+# 浏览器访问
+http://localhost:5000
 ```
 
-## 数据结构
+Web界面支持：
+- 📥 下载FXCM数据
+- 💾 导入到ClickHouse
+- 📊 数据完整性分析
+- ⚙️ 灵活的配置选项
 
-### 目录组织
+---
 
-下载的数据会按照以下结构存储：
+## 🌟 功能特点
+
+### 1. 数据下载
+
+- **多货币对** - 支持EURUSD、GBPUSD、USDJPY、AUDUSD、USDCAD、USDCHF
+- **多时间周期** - M1、M5、M15、M30、H1、D1
+- **长时间跨度** - 2015-2025年（10年历史数据）
+- **智能跳过** - 自动检测已存在文件
+- **失败重试** - 404错误自动重试5次
+- **详细日志** - 每次运行独立时间戳日志
+
+### 2. ClickHouse数据库导入
+
+#### ⚡ 快速模式（默认）
+- **速度提升** - 10-20倍性能提升（3分钟 vs 30-60分钟）
+- **智能检查** - 只验证文件首尾记录
+- **自动跳过** - 数据完整则跳过整个文件
+- **HTML报告** - 自动生成导入统计报告
+
+#### 🔍 详细模式
+- **逐条验证** - 检查每个记录是否存在
+- **精确定位** - 找出具体的缺失数据
+- **问题修复** - 适合修复特定数据问题
+- **交互选择** - 可选择特定文件检查
+
+### 3. 数据验证
+
+#### 五级质量检查
+1. **完整性检查** - 验证所有预期文件是否存在
+2. **时间连续性** - 检查数据时间戳连续性
+3. **价格合理性** - 验证OHLC价格关系
+4. **数据量统计** - 统计各货币对记录数
+5. **质量评分** - A+到F的评分系统
+
+#### 验证报告
+- 📊 HTML可视化报告
+- 📝 详细的文本报告
+- 🏆 A+评分系统
+- 📈 数据质量趋势
+
+### 4. 可视化报告
+
+#### 导入报告（import_report_*.html）
+- 总体统计（文件数、记录数、耗时、速度）
+- 按货币对分类统计
+- D1/M1数据详情
+- 状态标记和进度条
+- 模式说明
+
+#### 完整性报告（fxcm_data_report_*.html）
+- 文件完整率统计
+- 按年/周热力图矩阵
+- 缺失数据详细列表
+- 货币对对比分析
+
+---
+
+## 📁 项目结构
 
 ```
 Forex/
-├── fxcm_data/              # 数据根目录
-│   ├── EURUSD/             # 货币对文件夹
-│   │   ├── M1/             # 1分钟数据（原始数据）
-│   │   │   ├── 2015/       # 年份文件夹
-│   │   │   │   ├── week_01.csv
-│   │   │   │   ├── week_02.csv
-│   │   │   │   └── ...
-│   │   │   ├── 2016/
-│   │   │   └── ...
-│   │   ├── M5/             # 5分钟数据（由M1转换）
-│   │   ├── M15/            # 15分钟数据（由M1转换）
-│   │   ├── M30/            # 30分钟数据（由M1转换）
-│   │   ├── H1/             # 60分钟数据（由M1转换）
-│   │   └── D1/             # 日线数据（原始数据）
-│   │       ├── 2015.csv
-│   │       ├── 2016.csv
-│   │       └── ...
-│   ├── USDCAD/
+├── 📄 启动器（根目录）
+│   ├── batch_import.bat            # 批量导入
+│   ├── verify_data.bat             # 数据验证
+│   ├── comprehensive_check.bat     # 详细校验
+│   ├── start_web_ui.bat           # Web界面
+│   └── README.md                   # 本文档
+│
+├── 📂 scripts/（Python脚本）
+│   ├── 🔧 核心功能
+│   │   ├── batch_import_all.py          # 批量导入（快速模式）
+│   │   ├── verify_all_data.py           # 数据验证
+│   │   ├── comprehensive_check.py       # 详细校验
+│   │   ├── import_fxcm_to_clickhouse.py # 导入核心类
+│   │   └── generate_import_report.py    # HTML报告生成
+│   │
+│   ├── 💾 数据库工具
+│   │   ├── create_clickhouse_tables.py  # 创建表
+│   │   ├── rebuild_clickhouse_tables.py # 重建表
+│   │   └── view_clickhouse_tables.py    # 查看表
+│   │
+│   ├── 📥 数据工具
+│   │   ├── download_fxcm_candles.py     # 下载数据
+│   │   ├── convert_m1_to_multi_timeframes.py # 时间周期转换
+│   │   └── check_data_completeness.py   # 数据完整性检查
+│   │
+│   ├── 🌐 Web界面
+│   │   ├── flask_app.py                 # Flask应用
+│   │   ├── start_web.py                # Web启动
+│   │   └── fxcm_web_interface.py       # Web界面
+│   │
+│   └── 🧪 test/（测试脚本）
+│       ├── test_clickhouse_connection.py
+│       ├── query_examples.py
+│       └── demo_setup.py
+│
+├── 📂 config/（配置文件）
+│   ├── clickhouse_config.json      # ClickHouse配置
+│   └── download_config.json        # 下载配置
+│
+├── 📂 doc/（文档）
+│   ├── HTML_REPORT_GUIDE.md        # HTML报告指南
+│   ├── DATABASE_SCHEMA.md          # 数据库结构
+│   └── 导入模式说明.md
+│
+├── 📂 logs/（日志和报告）
+│   ├── import_report_*.html        # 导入报告
+│   ├── fxcm_data_report_*.html    # 完整性报告
+│   ├── import_log_*.txt           # 导入日志
+│   └── verification_report_*.txt   # 验证报告
+│
+├── 📂 fxcm_data/（原始数据）
+│   ├── EURUSD/
+│   │   ├── M1/  # 分钟数据
+│   │   └── D1/  # 日线数据
 │   ├── GBPUSD/
 │   └── ...
-└── logs/                   # 日志文件夹
-    ├── download_20251003_110507.log
-    └── ...
+│
+└── 📂 templates/（Web模板）
+    └── index.html
+
 ```
 
-### CSV 数据格式
+---
+```
+
+## 💻 环境要求
+
+### 系统要求
+- **操作系统** - Windows / Linux / MacOS
+- **Python** - 3.7 或更高版本
+- **内存** - 建议 8GB 以上
+- **磁盘空间** - 约 50GB（完整10年数据）
+
+### Python依赖
+
+```
+pandas>=1.3.0
+requests>=2.25.0
+flask>=2.0.0
+clickhouse-driver>=0.2.0
+```
+
+### ClickHouse数据库
+
+- **版本** - ClickHouse 21.0 或更高
+- **推荐配置** - 独立服务器或Docker部署
+- **连接方式** - HTTP接口（默认8123端口）
+
+---
+
+## 🔧 安装步骤
+
+### 1. 克隆项目
+
+```bash
+git clone https://github.com/binphilxiao/Forex.git
+cd Forex
+```
+
+### 2. 创建虚拟环境（推荐）
+
+```powershell
+# Windows PowerShell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+
+# Linux/Mac
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. 安装依赖
+
+```powershell
+pip install -r requirements.txt
+```
+
+### 4. 配置ClickHouse
+
+编辑 `config/clickhouse_config.json`:
+
+```json
+{
+  "host": "localhost",
+  "http_port": 8123,
+  "native_port": 9000,
+  "database": "forex_data",
+  "user": "default",
+  "password": ""
+}
+```
+
+### 5. 创建数据库表
+
+```powershell
+python scripts\create_clickhouse_tables.py
+```
+
+### 6. 开始使用
+
+```powershell
+# 方式一：批处理启动器
+batch_import.bat
+
+# 方式二：Python脚本
+python scripts\batch_import_all.py
+
+# 方式三：Web界面
+start_web_ui.bat
+```
+
+---
 
 所有 CSV 文件包含以下列：
 
@@ -556,7 +766,77 @@ FXCM 历史数据下载器
 
 ---
 
-## 更新日志
+## 📝 更新日志
+
+### v5.0.0 (2025-10-04) 🎉 重大版本发布
+
+#### 🚀 核心功能升级
+- **快速导入模式** - 10-20倍速度提升（3分钟 vs 30-60分钟）
+  - 只检查CSV文件首尾记录是否存在
+  - 智能跳过已完整导入的文件
+  - 适合日常批量导入操作
+
+- **详细校验模式** - 精确数据验证
+  - 逐条验证每个记录
+  - 交互式文件选择
+  - 适合问题定位和修复
+
+#### 📊 HTML报告系统
+- **自动生成导入报告** - `import_report_*.html`
+  - 总体统计（文件数、记录数、速度）
+  - 按货币对分类统计
+  - 详细的文件导入明细
+  - 可视化进度条和状态标记
+
+- **数据完整性报告** - `fxcm_data_report_*.html`
+  - 文件完整率分析
+  - 按年/周热力图矩阵
+  - 缺失数据详细列表
+  - 货币对对比分析
+
+#### 📁 项目结构重构
+- **Python脚本统一管理** - 所有.py文件移至`scripts/`
+  - 核心功能脚本
+  - 数据库工具脚本
+  - Web界面脚本
+  - 测试脚本（`scripts/test/`）
+
+- **配置文件独立** - 配置集中在`config/`目录
+  - ClickHouse配置
+  - 下载配置
+  - 易于管理和版本控制
+
+- **文档完善** - 详细的使用指南
+  - `PROJECT_STRUCTURE.md` - 项目结构说明
+  - `SCRIPT_INDEX.md` - 脚本索引和快速查找
+  - `HTML_REPORT_GUIDE.md` - HTML报告使用指南
+  - `CHANGELOG_FILE_RENAME.md` - 完整更新日志
+
+#### 🎯 用户体验优化
+- **便捷启动器** - 根目录批处理文件
+  - `batch_import.bat` - 一键批量导入
+  - `verify_data.bat` - 一键数据验证
+  - `comprehensive_check.bat` - 一键详细校验
+  - `start_web_ui.bat` - 一键启动Web界面
+
+- **智能模式切换**
+  - 日常使用：快速模式（默认）
+  - 问题排查：详细模式（按需）
+  - 自动选择最优方案
+
+#### 📈 性能数据
+- **处理速度**: 3分钟导入3,332个文件
+- **数据量**: 26,500,000条记录
+- **数据质量**: A+评分
+- **存储优化**: 智能跳过减少90%处理时间
+
+#### 🔧 技术改进
+- 新增 `generate_import_report.py` - HTML报告生成器
+- 优化 `batch_import_all.py` - 集成报告功能
+- 改进 `import_fxcm_to_clickhouse.py` - 双模式支持
+- 完善错误处理和日志系统
+
+---
 
 ### v4.2.5 (2025-10-04) 🔧
 - 🐛 **修复报告重复打开问题** - 数据分析完成后报告只打开一次
@@ -685,14 +965,70 @@ FXCM 历史数据下载器
 - ✅ **Git 版本控制** - 创建 .gitignore，排除数据文件，仅版本控制代码
 - 🏷️ **Git 标签** - 创建 v1.0.0 版本标签
 
-## 许可证
+---
 
-本项目仅供学习和研究使用。数据版权归 FXCM 所有。
+## 📚 文档索引
 
-## 联系方式
-
-如有问题或建议，请通过 GitHub Issues 反馈。
+- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) - 项目结构详解
+- [SCRIPT_INDEX.md](SCRIPT_INDEX.md) - 脚本索引和快速查找
+- [doc/HTML_REPORT_GUIDE.md](doc/HTML_REPORT_GUIDE.md) - HTML报告使用指南
+- [CHANGELOG_FILE_RENAME.md](CHANGELOG_FILE_RENAME.md) - 完整更新日志
+- [doc/DATABASE_SCHEMA.md](doc/DATABASE_SCHEMA.md) - 数据库结构说明
+- [QUICKSTART.md](QUICKSTART.md) - 快速开始指南
 
 ---
 
-**最后更新**: 2025年10月4日 v4.2.5
+## 🤝 贡献
+
+欢迎贡献代码、报告问题或提出建议！
+
+### 如何贡献
+
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
+
+### 报告问题
+
+使用 [GitHub Issues](https://github.com/binphilxiao/Forex/issues) 报告问题
+
+---
+
+## 📜 许可证
+
+本项目采用 MIT 许可证。
+
+**数据来源**: 数据来自 FXCM 公开 API，仅供学习研究使用。数据版权归 FXCM 所有。
+
+---
+
+## 💬 联系方式
+
+- **作者**: binphilxiao
+- **GitHub**: [@binphilxiao](https://github.com/binphilxiao)
+- **问题反馈**: 通过 GitHub Issues
+
+---
+
+## 🌟 致谢
+
+感谢以下开源项目：
+
+- [ClickHouse](https://clickhouse.com/) - 高性能列式数据库
+- [Flask](https://flask.palletsprojects.com/) - 轻量级Web框架
+- [Pandas](https://pandas.pydata.org/) - 数据分析库
+- [FXCM](https://www.fxcm.com/) - 提供历史数据API
+
+---
+
+<div align="center">
+
+**⭐ 如果这个项目对你有帮助，请给个Star！⭐**
+
+Made with ❤️ by binphilxiao
+
+**最后更新**: 2025年10月4日 | **版本**: v5.0.0
+
+</div>

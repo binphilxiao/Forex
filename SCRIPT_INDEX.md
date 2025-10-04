@@ -1,0 +1,151 @@
+# Python脚本索引
+
+## 📍 快速查找
+
+所有Python脚本已统一放在 `scripts/` 目录下，测试脚本在 `scripts/test/` 子目录中。
+
+---
+
+## 🚀 核心功能脚本 (scripts/)
+
+### 批量导入工具
+| 脚本 | 功能 | 运行方式 |
+|-----|------|---------|
+| `batch_import_all.py` | 批量导入所有数据（快速模式 + HTML报告） | `batch_import.bat` 或 `python scripts\batch_import_all.py` |
+| `batch_import_m1.py` | M1数据批量导入 | `python scripts\batch_import_m1.py` |
+| `direct_import_m1.py` | M1数据直接导入 | `python scripts\direct_import_m1.py` |
+
+### 验证工具
+| 脚本 | 功能 | 运行方式 |
+|-----|------|---------|
+| `verify_all_data.py` | 数据质量全面验证（A+评分） | `verify_data.bat` 或 `python scripts\verify_all_data.py` |
+| `comprehensive_check.py` | 严格校验导入（详细模式） | `comprehensive_check.bat` 或 `python scripts\comprehensive_check.py` |
+| `verify_data_quality.py` | 数据质量验证 | `python scripts\verify_data_quality.py` |
+| `check_data_completeness.py` | 数据完整性检查 | `python scripts\check_data_completeness.py` |
+
+### 数据库管理
+| 脚本 | 功能 | 运行方式 |
+|-----|------|---------|
+| `create_clickhouse_tables.py` | 创建数据库表 | `python scripts\create_clickhouse_tables.py` |
+| `rebuild_clickhouse_tables.py` | 重建数据库表（删除并重建） | `python scripts\rebuild_clickhouse_tables.py` |
+| `view_clickhouse_tables.py` | 查看数据库表信息 | `python scripts\view_clickhouse_tables.py` |
+
+### Web界面
+| 脚本 | 功能 | 运行方式 |
+|-----|------|---------|
+| `start_web.py` | Web服务启动脚本（主要） | `start_web_ui.bat` |
+| `flask_app.py` | Flask主应用 | `python scripts\flask_app.py` |
+| `fxcm_web_interface.py` | Web界面（完整版） | `python scripts\fxcm_web_interface.py` |
+| `fxcm_web_interface_simple.py` | Web界面（简化版） | `python scripts\fxcm_web_interface_simple.py` |
+| `run_web_interface.py` | Web启动器（备用） | `python scripts\run_web_interface.py` |
+
+### 数据工具
+| 脚本 | 功能 | 运行方式 |
+|-----|------|---------|
+| `download_fxcm_candles.py` | 下载FXCM历史数据 | `python scripts\download_fxcm_candles.py` |
+| `convert_m1_to_multi_timeframes.py` | M1数据转换为多时间周期 | `python scripts\convert_m1_to_multi_timeframes.py` |
+
+### 核心模块
+| 脚本 | 功能 | 说明 |
+|-----|------|-----|
+| `import_fxcm_to_clickhouse.py` | 数据导入核心类 | 被其他脚本导入使用 |
+
+---
+
+## 🧪 测试脚本 (scripts/test/)
+
+| 脚本 | 功能 | 运行方式 |
+|-----|------|---------|
+| `test_clickhouse_connection.py` | 测试数据库连接 | `python scripts\test\test_clickhouse_connection.py` |
+| `test_output.py` | 测试输出格式 | `python scripts\test\test_output.py` |
+| `query_examples.py` | SQL查询示例 | `python scripts\test\query_examples.py` |
+| `demo_setup.py` | 演示环境设置 | `python scripts\test\demo_setup.py` |
+
+---
+
+## 🎯 常用操作快捷方式
+
+### 日常维护流程
+```powershell
+# 1. 导入新数据
+batch_import.bat
+
+# 2. 验证数据质量
+verify_data.bat
+
+# 3. 如有问题，进行详细检查
+comprehensive_check.bat
+
+# 4. 启动Web界面查看数据
+start_web_ui.bat
+```
+
+### 数据库管理
+```powershell
+# 初次使用：创建数据库表
+python scripts\create_clickhouse_tables.py
+
+# 查看数据库表信息
+python scripts\view_clickhouse_tables.py
+
+# 重建数据库（慎用！会删除所有数据）
+python scripts\rebuild_clickhouse_tables.py
+```
+
+### 测试连接
+```powershell
+# 测试ClickHouse连接
+python scripts\test\test_clickhouse_connection.py
+```
+
+---
+
+## 📋 脚本分类统计
+
+- **核心功能脚本**: 18个
+  - 批量导入: 3个
+  - 验证工具: 4个
+  - 数据库管理: 3个
+  - Web界面: 5个
+  - 数据工具: 2个
+  - 核心模块: 1个
+
+- **测试脚本**: 4个
+  - 连接测试: 1个
+  - 输出测试: 1个
+  - 查询示例: 1个
+  - 演示设置: 1个
+
+**总计**: 22个Python脚本
+
+---
+
+## 🔍 按功能快速查找
+
+###我想...导入数据
+- **快速导入全部（推荐）**: `batch_import.bat` - 自动生成HTML报告
+- **导入M1数据**: `python scripts\batch_import_m1.py`
+- **手动选择导入**: `python scripts\import_fxcm_to_clickhouse.py`
+
+### 我想...验证数据
+- **快速验证（推荐）**: `verify_data.bat`
+- **详细验证**: `comprehensive_check.bat`
+- **完整性检查**: `python scripts\check_data_completeness.py`
+
+### 我想...查看数据
+- **Web界面查看**: `start_web_ui.bat` (推荐)
+- **命令行查看**: `python scripts\view_clickhouse_tables.py`
+
+### 我想...管理数据库
+- **创建表**: `python scripts\create_clickhouse_tables.py`
+- **重建表**: `python scripts\rebuild_clickhouse_tables.py`
+- **测试连接**: `python scripts\test\test_clickhouse_connection.py`
+
+### 我想...下载数据
+- **下载FXCM数据**: `python scripts\download_fxcm_candles.py`
+- **转换时间周期**: `python scripts\convert_m1_to_multi_timeframes.py`
+
+---
+
+**最后更新**: 2025-10-04  
+**版本**: v4.1.0
