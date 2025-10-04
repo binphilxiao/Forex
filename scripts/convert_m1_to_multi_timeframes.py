@@ -50,7 +50,7 @@ class FXCMMultiTimeframeConverter:
     
     def __init__(self):
         """初始化转换器"""
-        self.base_path = Path('fxcm_data')
+        self.base_path = Path(__file__).parent.parent / 'fxcm_data'
         self.instruments = ['EURUSD', 'USDCAD', 'GBPUSD', 'USDCHF', 'AUDUSD', 'USDJPY']
         self.start_year = 2015
         self.end_year = 2025
@@ -80,7 +80,7 @@ class FXCMMultiTimeframeConverter:
     def setup_logging(self):
         """设置日志系统"""
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        log_dir = Path('logs')
+        log_dir = Path(__file__).parent.parent / 'logs'
         log_dir.mkdir(exist_ok=True)
         
         log_file = log_dir / f'm1_to_multi_timeframes_{timestamp}.log'
@@ -525,7 +525,7 @@ class FXCMMultiTimeframeConverter:
 """
         
         # 保存HTML报告
-        html_file = Path('logs') / f'm1_to_m5_report_{timestamp}.html'
+        html_file = Path(__file__).parent.parent / 'logs' / f'm1_to_m5_report_{timestamp}.html'
         with open(html_file, 'w', encoding='utf-8') as f:
             f.write(html_content)
         
@@ -541,7 +541,7 @@ class FXCMMultiTimeframeConverter:
             'statistics': self.stats
         }
         
-        json_file = Path('logs') / f'm1_to_m5_report_{timestamp}.json'
+        json_file = Path(__file__).parent.parent / 'logs' / f'm1_to_m5_report_{timestamp}.json'
         with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(json_data, f, indent=2, ensure_ascii=False)
         

@@ -274,7 +274,7 @@ def static_files(filename):
 @app.route('/report/<path:filename>')
 def serve_report(filename):
     """提供报告文件"""
-    logs_dir = Path('logs')
+    logs_dir = Path(__file__).parent.parent / 'logs'
     response = make_response(send_from_directory(logs_dir, filename))
     # 禁用缓存
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'

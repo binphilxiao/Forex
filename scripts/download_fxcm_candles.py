@@ -49,8 +49,8 @@ TIMEFRAMES = {
 }
 
 # 数据保存路径
-OUTPUT_DIR = Path('fxcm_data')
-LOG_DIR = Path('logs')
+OUTPUT_DIR = Path(__file__).parent.parent / 'fxcm_data'
+LOG_DIR = Path(__file__).parent.parent / 'logs'
 
 class FXCMDataDownloader:
     def __init__(self):
