@@ -15,7 +15,7 @@ FXCM 数据处理 Web 界面 (Flask版本)
 
 作者: Claude 4.5
 创建时间: 2025-10-04
-版本: 3.0.0
+版本: 4.1.0
 """
 
 from flask import Flask, render_template, request, jsonify, send_from_directory, make_response
@@ -36,7 +36,8 @@ task_status = {
     'running': False,
     'status': '就绪',
     'progress': 0,
-    'task_name': ''
+    'task_name': '',
+    'report_file': None  # 存储生成的报告文件路径
 }
 
 class TaskRunner:
@@ -54,6 +55,7 @@ class TaskRunner:
         task_status['status'] = f'正在{task_name}...'
         task_status['progress'] = 0
         task_status['task_name'] = task_name
+        task_status['report_file'] = None  # 清除之前的报告文件
         
         print(f"\n{'='*60}")
         print(f"🚀 开始{task_name}")
@@ -88,6 +90,18 @@ class TaskRunner:
                     # 简单的进度估算
                     if line_count % 10 == 0:
                         task_status['progress'] = min(95, task_status['progress'] + 5)
+                    
+                    # 捕获HTML报告文件路径
+                    if task_name == '数据分析' and '🌐 HTML报告:' in line:
+                        # 从日志中提取报告文件路径
+                        try:
+                            report_path = line.split('🌐 HTML报告:')[1].strip()
+                            report_file = Path(report_path)
+                            if report_file.exists():
+                                task_status['report_file'] = report_file.name  # 只存储文件名
+                                print(f"📋 已捕获报告文件: {report_file.name}")
+                        except:
+                            pass
             
             # 等待完成
             if not self.should_stop:
@@ -241,10 +255,21 @@ def static_files(filename):
     """静态文件"""
     return send_from_directory('static', filename)
 
+@app.route('/report/<path:filename>')
+def serve_report(filename):
+    """提供报告文件"""
+    logs_dir = Path('logs')
+    response = make_response(send_from_directory(logs_dir, filename))
+    # 禁用缓存
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+
 if __name__ == '__main__':
     print("=" * 60)
     print("🚀 FXCM 数据处理系统 - Web界面")
-    print("版本: 3.0.1 (Flask)")
+    print("版本: 4.1.0 (Flask)")
     print("=" * 60)
     print()
     print("🌐 访问地址: http://localhost:5000")

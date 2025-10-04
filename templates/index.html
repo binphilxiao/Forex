@@ -298,7 +298,7 @@
     <div class="container">
         <div class="header">
             <h1>📈 FXCM 数据处理系统</h1>
-            <p>专业的外汇历史数据下载与分析平台 v3.0.2</p>
+            <p>专业的外汇历史数据下载与分析平台 v4.1.0</p>
         </div>
         
         <div class="card">
@@ -464,6 +464,16 @@
                     document.getElementById('btn-stop').classList.add('hidden');
                 }
                 
+                // 如果数据分析完成且有报告文件，自动打开报告
+                if (!running && data.report_file && data.task_name === '数据分析' && !window.reportOpened) {
+                    window.reportOpened = true;  // 防止重复打开
+                    const reportUrl = '/report/' + data.report_file;
+                    window.open(reportUrl, '_blank');
+                    
+                    // 显示提示
+                    alert('✅ 数据分析完成！报告已在新窗口中打开。\n如果没有自动打开，请点击此链接: ' + reportUrl);
+                }
+                
             } catch (error) {
                 console.error('状态更新失败:', error);
             }
@@ -532,6 +542,8 @@
         
         // 开始分析
         async function startAnalysis() {
+            window.reportOpened = false;  // 重置报告打开标记
+            
             const response = await fetch('/api/start_analysis', {method: 'POST'});
             const data = await response.json();
             
