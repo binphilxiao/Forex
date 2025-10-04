@@ -191,7 +191,9 @@ def start_download():
         'retry_times': retry_times
     }
     
-    with open('download_config.json', 'w', encoding='utf-8') as f:
+    config_file = Path(__file__).parent.parent / 'config' / 'download_config.json'
+    config_file.parent.mkdir(exist_ok=True)  # 确保config目录存在
+    with open(config_file, 'w', encoding='utf-8') as f:
         json.dump(config_data, f, ensure_ascii=False, indent=2)
     
     print(f"\n📋 下载配置:")

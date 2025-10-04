@@ -26,7 +26,7 @@ if sys.platform == 'win32':
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 # 读取配置文件（如果存在）
-config_file = Path('download_config.json')
+config_file = Path(__file__).parent.parent / 'config' / 'download_config.json'
 if config_file.exists():
     with open(config_file, 'r', encoding='utf-8') as f:
         config = json.load(f)
