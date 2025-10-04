@@ -88,6 +88,19 @@ def main():
     
     print("✅ 所有依赖库检查完成")
     
+    # 检查是否有简化版界面
+    simple_interface_file = current_dir / 'fxcm_web_interface_simple.py'
+    
+    if simple_interface_file.exists():
+        print("🔍 发现简化版界面，推荐使用简化版以避免依赖问题")
+        user_choice = input("选择界面版本: [1] 完整版 [2] 简化版 (推荐) [2]: ").strip() or "2"
+        
+        if user_choice == "2":
+            web_interface_file = simple_interface_file
+            print("✅ 使用简化版界面")
+        else:
+            print("✅ 使用完整版界面")
+    
     # 启动 Streamlit 应用
     print("\n🌐 启动 Web 界面...")
     print("📱 界面将在浏览器中自动打开")

@@ -199,12 +199,19 @@ class FXCMWebInterface:
             """)
             
         with col2:
+            # 检查是否有选中的货币对
+            has_instruments = len(config['instruments']) > 0
+            
             download_btn = st.button(
                 "🚀 开始下载", 
-                disabled=st.session_state.task_running,
+                disabled=st.session_state.get('task_running', False) or not has_instruments,
                 key="download_button",
-                use_container_width=True
+                use_container_width=True,
+                help="选择货币对后开始下载数据" if not has_instruments else "开始下载选中的货币对数据"
             )
+            
+            if not has_instruments:
+                st.warning("⚠️ 请先选择要下载的货币对")
             
         if download_btn:
             self.start_download_task(config)
@@ -232,15 +239,29 @@ class FXCMWebInterface:
             """)
             
         with col2:
+            # 检查转换条件
+            has_m1_data = self.check_m1_data_exists()
+            has_instruments = len(config['instruments']) > 0
+            has_timeframes = len(config['conversion_timeframes']) > 0
+            
             convert_btn = st.button(
                 "⚡ 开始转换", 
-                disabled=st.session_state.task_running or not self.check_m1_data_exists(),
+                disabled=(st.session_state.get('task_running', False) or 
+                         not has_m1_data or 
+                         not has_instruments or 
+                         not has_timeframes),
                 key="convert_button",
-                use_container_width=True
+                use_container_width=True,
+                help="需要M1数据、货币对和目标时间周期才能转换"
             )
             
-        if not self.check_m1_data_exists():
-            st.warning("⚠️ 请先下载M1数据才能进行转换")
+        # 显示转换条件检查结果
+        if not has_m1_data:
+            st.warning("⚠️ 未发现M1数据，请先下载数据")
+        elif not has_instruments:
+            st.warning("⚠️ 请选择要转换的货币对")
+        elif not has_timeframes:
+            st.warning("⚠️ 请选择要生成的时间周期")
             
         if convert_btn:
             self.start_conversion_task(config)
@@ -260,12 +281,19 @@ class FXCMWebInterface:
         col1, col2 = st.columns([3, 1])
         
         with col2:
+            # 检查是否有数据可以分析
+            has_any_data = self.base_path.exists() and len(list(self.base_path.rglob("*.csv"))) > 0
+            
             analyze_btn = st.button(
                 "🔍 分析数据", 
-                disabled=st.session_state.task_running,
+                disabled=st.session_state.get('task_running', False) or not has_any_data,
                 key="analyze_button",
-                use_container_width=True
+                use_container_width=True,
+                help="需要有数据文件才能进行分析"
             )
+            
+        if not has_any_data:
+            st.warning("⚠️ 未发现数据文件，请先下载数据")
             
         if analyze_btn:
             self.start_analysis_task()
@@ -319,11 +347,9 @@ class FXCMWebInterface:
         if not self.base_path.exists():
             return False
             
-        for instrument in self.instruments:
-            m1_path = self.base_path / instrument / 'M1'
-            if m1_path.exists() and list(m1_path.rglob("*.csv")):
-                return True
-        return False
+        # 检查是否有任何M1数据文件
+        m1_files = list(self.base_path.rglob("*/M1/*/*.csv"))
+        return len(m1_files) > 0
     
     def start_download_task(self, config):
         """启动下载任务"""
