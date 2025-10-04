@@ -148,6 +148,35 @@ def start_download():
     if task_status['running']:
         return jsonify({'success': False, 'message': '已有任务在运行'})
     
+    # 获取配置
+    config = request.get_json() or {}
+    pairs = config.get('pairs', ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'USDCAD', 'USDCHF'])
+    start_year = config.get('start_year', 2015)
+    end_year = config.get('end_year', 2021)
+    retry_enabled = config.get('retry_enabled', True)
+    retry_times = config.get('retry_times', 3)
+    
+    # 保存配置到JSON文件
+    import json
+    config_data = {
+        'pairs': pairs,
+        'start_year': start_year,
+        'end_year': end_year,
+        'retry_enabled': retry_enabled,
+        'retry_times': retry_times
+    }
+    
+    with open('download_config.json', 'w', encoding='utf-8') as f:
+        json.dump(config_data, f, ensure_ascii=False, indent=2)
+    
+    print(f"\n📋 下载配置:")
+    print(f"   外汇对: {', '.join(pairs)}")
+    print(f"   年份范围: {start_year} - {end_year}")
+    print(f"   失败重试: {'是' if retry_enabled else '否'}")
+    if retry_enabled:
+        print(f"   重试次数: {retry_times}")
+    print()
+    
     current_task_runner = TaskRunner()
     thread = threading.Thread(target=current_task_runner.run_script, args=('download_fxcm_candles.py', '数据下载'))
     thread.daemon = True
