@@ -20,6 +20,8 @@ FXCM 数据完整性检查器
 版本: 1.0.1
 """
 
+import sys
+import io
 import pandas as pd
 from pathlib import Path
 import json
@@ -27,6 +29,11 @@ from datetime import datetime, timedelta
 import logging
 from collections import defaultdict
 import os
+
+# 设置标准输出编码为UTF-8，避免Windows控制台编码问题
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 class FXCMDataChecker:
     """FXCM数据完整性检查器"""

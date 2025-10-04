@@ -9,6 +9,8 @@ python download_fxcm_candles.py
 """
 
 import os
+import sys
+import io
 import requests
 import gzip
 import pandas as pd
@@ -16,6 +18,11 @@ from datetime import datetime, timedelta
 import time
 from pathlib import Path
 import logging
+
+# 设置标准输出编码为UTF-8，避免Windows控制台编码问题
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 # 配置参数
 INSTRUMENTS = ['EURUSD', 'USDCAD', 'GBPUSD', 'USDCHF', 'AUDUSD', 'USDJPY']
