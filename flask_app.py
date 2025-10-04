@@ -31,13 +31,12 @@ import os
 app = Flask(__name__)
 
 # 全局变量
-task_queue = queue.Queue()
-current_task = None
+current_task_runner = None
 task_status = {
     'running': False,
     'status': '就绪',
     'progress': 0,
-    'logs': []
+    'task_name': ''
 }
 
 class TaskRunner:
@@ -45,7 +44,7 @@ class TaskRunner:
     
     def __init__(self):
         self.process = None
-        self.log_queue = queue.Queue()
+        self.should_stop = False
         
     def run_script(self, script_name, task_name):
         """运行脚本"""
@@ -53,8 +52,12 @@ class TaskRunner:
         
         task_status['running'] = True
         task_status['status'] = f'正在{task_name}...'
-        task_status['progress'] = 10
-        task_status['logs'] = []
+        task_status['progress'] = 0
+        task_status['task_name'] = task_name
+        
+        print(f"\n{'='*60}")
+        print(f"🚀 开始{task_name}")
+        print(f"{'='*60}\n")
         
         try:
             self.process = subprocess.Popen(
@@ -68,59 +71,59 @@ class TaskRunner:
                 universal_newlines=True
             )
             
-            # 读取输出
+            # 实时读取并打印输出到终端
+            line_count = 0
             for line in self.process.stdout:
+                if self.should_stop:
+                    self.process.terminate()
+                    print(f"\n⏹ {task_name}已被用户终止")
+                    task_status['status'] = '已停止'
+                    task_status['progress'] = 0
+                    break
+                    
                 line = line.strip()
                 if line:
-                    timestamp = datetime.now().strftime('%H:%M:%S')
-                    log_entry = {'time': timestamp, 'message': line, 'level': self._get_log_level(line)}
-                    task_status['logs'].append(log_entry)
-                    task_status['progress'] = min(90, task_status['progress'] + 1)
+                    print(line)  # 直接打印到终端
+                    line_count += 1
+                    # 简单的进度估算
+                    if line_count % 10 == 0:
+                        task_status['progress'] = min(95, task_status['progress'] + 5)
             
             # 等待完成
-            return_code = self.process.wait()
-            
-            if return_code == 0:
-                task_status['status'] = f'{task_name}完成'
-                task_status['progress'] = 100
-                self._add_log(f'✅ {task_name}成功完成！', 'success')
-            else:
-                stderr = self.process.stderr.read()
-                task_status['status'] = f'{task_name}失败'
-                self._add_log(f'❌ {task_name}失败: {stderr[:200]}', 'error')
+            if not self.should_stop:
+                return_code = self.process.wait()
                 
+                if return_code == 0:
+                    task_status['status'] = f'{task_name}完成'
+                    task_status['progress'] = 100
+                    print(f"\n✅ {task_name}成功完成！")
+                else:
+                    stderr = self.process.stderr.read()
+                    task_status['status'] = f'{task_name}失败'
+                    task_status['progress'] = 0
+                    print(f"\n❌ {task_name}失败:")
+                    print(stderr)
+                    
         except Exception as e:
             task_status['status'] = f'{task_name}出错'
-            self._add_log(f'❌ 错误: {str(e)}', 'error')
+            task_status['progress'] = 0
+            print(f"\n❌ 错误: {str(e)}")
             
         finally:
-            task_status['running'] = False
+            if not self.should_stop:
+                task_status['running'] = False
             self.process = None
+            print(f"\n{'='*60}\n")
             
-    def _get_log_level(self, message):
-        """判断日志级别"""
-        if '✅' in message or '成功' in message:
-            return 'success'
-        elif '❌' in message or '错误' in message or '失败' in message:
-            return 'error'
-        elif '⚠️' in message or '警告' in message:
-            return 'warning'
-        else:
-            return 'info'
-            
-    def _add_log(self, message, level='info'):
-        """添加日志"""
-        timestamp = datetime.now().strftime('%H:%M:%S')
-        log_entry = {'time': timestamp, 'message': message, 'level': level}
-        task_status['logs'].append(log_entry)
-        
     def stop(self):
         """停止任务"""
+        self.should_stop = True
         if self.process:
-            self.process.terminate()
-            self._add_log('⏹ 任务已被用户终止', 'warning')
-            task_status['running'] = False
-            task_status['status'] = '已停止'
+            try:
+                self.process.terminate()
+                print("\n⏹ 正在终止任务...")
+            except:
+                pass
 
 # 路由
 @app.route('/')
@@ -131,52 +134,69 @@ def index():
 @app.route('/api/start_download', methods=['POST'])
 def start_download():
     """开始下载"""
+    global current_task_runner
+    
     if task_status['running']:
         return jsonify({'success': False, 'message': '已有任务在运行'})
     
-    runner = TaskRunner()
-    thread = threading.Thread(target=runner.run_script, args=('download_fxcm_candles.py', '数据下载'))
+    current_task_runner = TaskRunner()
+    thread = threading.Thread(target=current_task_runner.run_script, args=('download_fxcm_candles.py', '数据下载'))
     thread.daemon = True
     thread.start()
     
-    return jsonify({'success': True, 'message': '下载任务已启动'})
+    return jsonify({'success': True, 'message': '下载任务已启动，请查看终端输出'})
 
 @app.route('/api/start_conversion', methods=['POST'])
 def start_conversion():
     """开始转换"""
+    global current_task_runner
+    
     if task_status['running']:
         return jsonify({'success': False, 'message': '已有任务在运行'})
     
-    runner = TaskRunner()
-    thread = threading.Thread(target=runner.run_script, args=('convert_m1_to_multi_timeframes.py', '数据转换'))
+    current_task_runner = TaskRunner()
+    thread = threading.Thread(target=current_task_runner.run_script, args=('multi_timeframe_converter.py', '数据转换'))
     thread.daemon = True
     thread.start()
     
-    return jsonify({'success': True, 'message': '转换任务已启动'})
+    return jsonify({'success': True, 'message': '转换任务已启动，请查看终端输出'})
 
 @app.route('/api/start_analysis', methods=['POST'])
 def start_analysis():
     """开始分析"""
+    global current_task_runner
+    
     if task_status['running']:
         return jsonify({'success': False, 'message': '已有任务在运行'})
     
-    runner = TaskRunner()
-    thread = threading.Thread(target=runner.run_script, args=('check_data_completeness.py', '数据分析'))
+    current_task_runner = TaskRunner()
+    thread = threading.Thread(target=current_task_runner.run_script, args=('data_completeness_checker.py', '数据分析'))
     thread.daemon = True
     thread.start()
     
-    return jsonify({'success': True, 'message': '分析任务已启动'})
+    return jsonify({'success': True, 'message': '分析任务已启动，请查看终端输出'})
 
 @app.route('/api/status')
 def get_status():
     """获取状态"""
     return jsonify(task_status)
 
-@app.route('/api/clear_logs', methods=['POST'])
-def clear_logs():
-    """清空日志"""
-    task_status['logs'] = []
-    return jsonify({'success': True})
+@app.route('/api/stop_task', methods=['POST'])
+def stop_task():
+    """停止任务"""
+    global current_task_runner, task_status
+    
+    if not task_status['running']:
+        return jsonify({'success': False, 'message': '没有正在运行的任务'})
+    
+    if current_task_runner:
+        current_task_runner.stop()
+        task_status['running'] = False
+        task_status['status'] = '已停止'
+        task_status['progress'] = 0
+        return jsonify({'success': True, 'message': '任务已停止'})
+    
+    return jsonify({'success': False, 'message': '无法停止任务'})
 
 @app.route('/static/<path:filename>')
 def static_files(filename):
