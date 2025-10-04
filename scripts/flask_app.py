@@ -65,6 +65,8 @@ class TaskRunner:
         print(f"\n{'='*60}")
         print(f"🚀 开始{task_name}")
         print(f"🔧 调用脚本: {script_name}")
+        print(f"📁 完整路径: {Path(script_name).absolute()}")
+        print(f"✅ 文件存在: {Path(script_name).exists()}")
         print(f"{'='*60}\n")
         
         try:
