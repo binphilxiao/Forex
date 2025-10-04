@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>FXCM 数据处理系统 v3.0.3</title>
+    <title>FXCM 数据处理系统 v4.2.0</title>
     <style>
         * {
             margin: 0;
@@ -276,7 +276,7 @@
     <div class="container">
         <div class="header">
             <h1>📈 FXCM 数据处理系统</h1>
-            <p>专业的外汇历史数据下载与分析平台 v4.1.1</p>
+            <p>专业的外汇历史数据下载与分析平台 v4.2.0</p>
         </div>
         
         <div class="card">
@@ -520,16 +520,9 @@
         
         // 停止任务
         async function stopTask() {
-            if (confirm('⚠️ 确定要停止当前任务吗？')) {
-                const response = await fetch('/api/stop_task', {method: 'POST'});
-                const data = await response.json();
-                
-                if (data.success) {
-                    alert('✅ ' + data.message);
-                } else {
-                    alert('❌ ' + data.message);
-                }
-            }
+            const response = await fetch('/api/stop_task', {method: 'POST'});
+            const data = await response.json();
+            // 不显示任何提示，状态通过界面显示
         }
         
         // 页面加载时启动状态更新
