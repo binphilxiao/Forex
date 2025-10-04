@@ -483,7 +483,7 @@
             const data = await response.json();
             
             if (data.success) {
-                alert('✅ ' + data.message);
+                // 任务已启动，不显示弹窗，直接开始状态更新
                 startStatusUpdates();
             } else {
                 alert('❌ ' + data.message);
@@ -496,7 +496,7 @@
             const data = await response.json();
             
             if (data.success) {
-                alert('✅ ' + data.message);
+                // 任务已启动，不显示弹窗，直接开始状态更新
                 startStatusUpdates();
             } else {
                 alert('❌ ' + data.message);
@@ -511,7 +511,7 @@
             const data = await response.json();
             
             if (data.success) {
-                alert('✅ ' + data.message);
+                // 任务已启动，不显示弹窗，直接开始状态更新
                 startStatusUpdates();
             } else {
                 alert('❌ ' + data.message);
