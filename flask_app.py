@@ -18,7 +18,7 @@ FXCM 数据处理 Web 界面 (Flask版本)
 版本: 3.0.0
 """
 
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, make_response
 import subprocess
 import sys
 import threading
@@ -127,12 +127,18 @@ class TaskRunner:
 
 # 路由
 @app.route('/')
+@app.route('/v3')
 def index():
     """主页"""
     import time
     # 添加时间戳避免缓存
     version = int(time.time())
-    return render_template('index.html', v=version)
+    response = make_response(render_template('index.html', v=version))
+    # 强制禁用缓存
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @app.route('/api/start_download', methods=['POST'])
 def start_download():
