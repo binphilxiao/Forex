@@ -179,7 +179,7 @@ def start_analysis():
         return jsonify({'success': False, 'message': '已有任务在运行'})
     
     current_task_runner = TaskRunner()
-    thread = threading.Thread(target=current_task_runner.run_script, args=('data_completeness_checker.py', '数据分析'))
+    thread = threading.Thread(target=current_task_runner.run_script, args=('check_data_completeness.py', '数据分析'))
     thread.daemon = True
     thread.start()
     
