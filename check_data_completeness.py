@@ -17,7 +17,7 @@ FXCM 数据完整性检查器
 
 作者: AI Assistant
 创建时间: 2025-10-03
-版本: 1.0.1
+版本: 1.0.2
 """
 
 import pandas as pd
