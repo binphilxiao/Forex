@@ -13,7 +13,7 @@
 ### 所有平台
 ```bash
 # 启动Web服务器
-python start_web.py
+python scripts/start_web.py
 
 # 浏览器访问
 http://localhost:5000
@@ -98,7 +98,7 @@ ifconfig | grep inet
 ## ⚠️ 常见问题
 
 ### Q: 终端没有输出？
-A: 这是正常的，请确保运行了 `python start_web.py`
+A: 这是正常的，请确保运行了 `python scripts/start_web.py`
 
 ### Q: 下载很多404错误？
 A: 正常现象，某些周次的数据FXCM不提供
@@ -123,7 +123,7 @@ A: 分析完成后自动打开，也可在 `logs/` 文件夹查看
 ## 🎉 开始你的数据之旅！
 
 ```bash
-python start_web.py
+python scripts/start_web.py
 ```
 
 **现在就访问 http://localhost:5000 开始使用吧！** 🚀

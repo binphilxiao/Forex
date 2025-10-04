@@ -9,7 +9,7 @@ echo.
 echo 正在启动Web服务器...
 echo.
 
-python start_web.py
+python scripts\start_web.py
 
 if errorlevel 1 (
     echo.

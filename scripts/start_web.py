@@ -65,8 +65,11 @@ def main():
     print("=" * 60)
     print()
     
+    # 获取scripts目录的路径
+    scripts_dir = Path(__file__).parent
+    app_file = scripts_dir / 'flask_app.py'
+    
     # 检查Flask应用文件
-    app_file = Path('flask_app.py')
     if not app_file.exists():
         print("❌ 错误: flask_app.py 文件不存在！")
         input("\n按任意键退出...")
@@ -96,7 +99,7 @@ def main():
     threading.Thread(target=open_browser, daemon=True).start()
     
     try:
-        subprocess.run([sys.executable, 'flask_app.py'])
+        subprocess.run([sys.executable, str(app_file)])
     except KeyboardInterrupt:
         print("\n\n服务器已停止")
     except Exception as e:
