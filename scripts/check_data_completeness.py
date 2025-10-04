@@ -668,9 +668,13 @@ class FXCMDataChecker:
             print()
             print("💡 提示: 打开HTML报告文件查看详细的可视化分析")
             
+            # 返回HTML文件路径
+            return str(html_file.absolute())
+            
         except Exception as e:
             self.logger.error(f"分析过程中出现错误: {e}")
             print(f"❌ 错误: {e}")
+            return None
 
 def main():
     """主函数"""
@@ -678,7 +682,10 @@ def main():
     print("="*40)
     
     checker = FXCMDataChecker()
-    checker.run_analysis()
+    report_path = checker.run_analysis()
+    
+    # 注意：不在这里打开报告，由调用方（如Flask）决定是否打开
+    # 这样可以避免在Web界面调用时重复打开两次
 
 if __name__ == '__main__':
     main()

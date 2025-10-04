@@ -124,6 +124,10 @@ class TaskRunner:
                     task_status['status'] = f'{task_name}完成'
                     task_status['progress'] = 100
                     print(f"\n✅ {task_name}成功完成！", flush=True)
+                    
+                    # 如果是数据分析任务且有报告文件，自动打开
+                    if task_name == '数据分析' and task_status['report_file']:
+                        self._open_report()
                 else:
                     task_status['status'] = f'{task_name}失败'
                     task_status['progress'] = 0
@@ -156,6 +160,27 @@ class TaskRunner:
                 print("\n⏹ 正在终止任务...")
             except:
                 pass
+    
+    def _open_report(self):
+        """自动打开分析报告"""
+        try:
+            import webbrowser
+            
+            # 从logs目录查找最新的报告文件
+            logs_dir = Path(__file__).parent.parent / 'logs'
+            if logs_dir.exists():
+                # 查找所有HTML报告文件
+                report_files = list(logs_dir.glob('fxcm_data_report_*.html'))
+                if report_files:
+                    # 按修改时间排序，获取最新的
+                    latest_report = max(report_files, key=lambda p: p.stat().st_mtime)
+                    
+                    # 使用file:///协议打开本地HTML文件
+                    file_url = latest_report.as_uri()
+                    webbrowser.open(file_url)
+            
+        except Exception as e:
+            pass  # 静默失败，不打扰用户
 
 # 路由
 @app.route('/')
@@ -310,20 +335,5 @@ if __name__ == '__main__':
     print("按 Ctrl+C 停止服务器")
     print("=" * 60)
     print()
-    
-    # 自动打开浏览器
-    import webbrowser
-    import threading
-    import time
-    
-    def open_browser():
-        time.sleep(1.5)  # 等待服务器完全启动
-        try:
-            webbrowser.open('http://127.0.0.1:5000')
-            print("🔗 浏览器已自动打开\n")
-        except:
-            print("⚠️ 无法自动打开浏览器，请手动访问: http://127.0.0.1:5000\n")
-    
-    threading.Thread(target=open_browser, daemon=True).start()
     
     app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)
