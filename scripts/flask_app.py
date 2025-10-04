@@ -294,6 +294,11 @@ def serve_report(filename):
     return response
 
 if __name__ == '__main__':
+    # 禁用 Flask/Werkzeug 的访问日志，避免干扰任务日志输出
+    import logging
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)  # 只显示错误，不显示访问日志
+    
     print("=" * 60)
     print("🚀 FXCM 数据处理系统 - Web界面")
     print("版本: 4.1.1 (Flask)")
