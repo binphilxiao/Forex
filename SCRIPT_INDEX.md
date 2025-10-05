@@ -20,6 +20,7 @@
 |-----|------|---------|
 | `verify_all_data.py` | 数据质量全面验证（A+评分） | `verify_data.bat` 或 `python scripts\verify_all_data.py` |
 | `comprehensive_check.py` | 严格校验导入（详细模式） | `comprehensive_check.bat` 或 `python scripts\comprehensive_check.py` |
+| `verify_data_consistency.py` | **CSV与数据库一致性检查（双模式+HTML报告）** | `verify_consistency.bat` 或 `python scripts\verify_data_consistency.py` |
 | `verify_data_quality.py` | 数据质量验证 | `python scripts\verify_data_quality.py` |
 | `check_data_completeness.py` | 数据完整性检查 | `python scripts\check_data_completeness.py` |
 
@@ -57,6 +58,7 @@
 | 脚本 | 功能 | 运行方式 |
 |-----|------|---------|
 | `test_clickhouse_connection.py` | 测试数据库连接 | `python scripts\test\test_clickhouse_connection.py` |
+| `test_verify_consistency.py` | **测试一致性检查工具（完整测试套件）** | `python scripts\test\test_verify_consistency.py` |
 | `test_output.py` | 测试输出格式 | `python scripts\test\test_output.py` |
 | `query_examples.py` | SQL查询示例 | `python scripts\test\query_examples.py` |
 | `demo_setup.py` | 演示环境设置 | `python scripts\test\demo_setup.py` |
