@@ -2,11 +2,7 @@
 
 ## 📍 快速查找
 
-所有Python脚本已统### 数据工具
-| 脚本 | 功能 | 运行方式 |
-|-----|------|---------||
-| `fxcm_data_downloader.py` | **FXCM数据下载器v2.0** - 命令行参数，灵活配置，自动重试 | `download_fxcm_data.bat` 或 `python scripts\fxcm_data_downloader.py` |
-| `convert_m1_to_multi_timeframes.py` | M1数据转换为多时间周期 | `python scripts\convert_m1_to_multi_timeframes.py` |cripts/` 目录下，测试脚本在 `scripts/test/` 子目录中。
+所有Python脚本已统一放在 `scripts/` 目录下，测试脚本在 `scripts/test/` 子目录中。
 
 ---
 
@@ -47,8 +43,7 @@
 ### 数据工具
 | 脚本 | 功能 | 运行方式 |
 |-----|------|---------|
-| `fxcm_data_downloader.py` | **FXCM数据下载器v2.0（推荐）** - 命令行参数，灵活配置 | `download_fxcm_data.bat` 或 `python scripts\fxcm_data_downloader.py` |
-| `download_fxcm_candles.py` | 下载FXCM历史数据（旧版） | `python scripts\download_fxcm_candles.py` |
+| `fxcm_data_downloader.py` | **FXCM数据下载器v2.0** - 命令行参数，灵活配置，自动重试 | `download_fxcm_data.bat` 或 `python scripts\fxcm_data_downloader.py` |
 | `convert_m1_to_multi_timeframes.py` | M1数据转换为多时间周期 | `python scripts\convert_m1_to_multi_timeframes.py` |
 
 ### 核心模块
@@ -132,7 +127,7 @@ python scripts\test\test_clickhouse_connection.py
 
 ## 🔍 按功能快速查找
 
-###我想...导入数据
+### 我想...导入数据
 - **快速导入全部（推荐）**: `batch_import.bat` - 自动生成HTML报告
 - **导入M1数据**: `python scripts\batch_import_m1.py`
 - **手动选择导入**: `python scripts\import_fxcm_to_clickhouse.py`
@@ -158,4 +153,4 @@ python scripts\test\test_clickhouse_connection.py
 ---
 
 **最后更新**: 2025-10-05  
-**版本**: v5.0.1
+**版本**: v5.0.2
