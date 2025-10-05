@@ -205,7 +205,25 @@ Downloads data from 2018 to 2023.
 
 ---
 
-### Example 8: Complex Configuration
+### Example 8: Custom Retry Attempts
+
+```bash
+# Network unstable - retry 10 times
+python scripts/fxcm_data_downloader.py --max-retries 10
+
+# Quick test - no retry
+python scripts/fxcm_data_downloader.py --pairs EURUSD --timeframes D1 --start-year 2024 --max-retries 1
+```
+
+**Retry mechanism:**
+- Automatically retries failed downloads
+- Default: 5 retry attempts
+- 0.5 second delay between retries
+- See [Retry Mechanism Guide](doc/fxcm_downloader_retry_mechanism.md) for details
+
+---
+
+### Example 9: Complex Configuration
 
 ```bash
 python scripts/fxcm_data_downloader.py \
@@ -220,7 +238,7 @@ Downloads EURUSD and GBPUSD, M1 only, from 2020 to 2023, with 3 retry attempts.
 
 ---
 
-### Example 9: Resume Interrupted Download
+### Example 10: Resume Interrupted Download
 
 Simply run the same command again:
 
