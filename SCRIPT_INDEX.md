@@ -2,7 +2,18 @@
 
 ## 📍 快速查找
 
-所有Python脚本已统一放在 `scripts/` 目录下，测试脚本在 `scripts/test/` 子目录中。
+所有Python脚本已统### 数据工具
+| 脚本 | 功能 | 运行方式 |
+|-----|------|------|
+| `fxcm_data_downloader.py` | **FXCM数据下载器v2.0** - 命令行参数，灵活配置，自动重试 | `download_fxcm_data.bat` 或 `python scripts\fxcm_data_downloader.py` |
+| `fxcm_importer.py` | **FXCM数据导入器v2.0** - 双验证模式(快速/全面)，智能去重，自动配置 | `import_fxcm_data.bat` 或 `python scripts\fxcm_importer.py` |
+| `m1_timeframe_converter.py` | **M1时间框架转换器v2.0** - 双模式(本地CSV/数据库SQL)，M1转M5/M15/M30/H1，ClickHouse可选 | `convert_m1_to_multi_timeframes.bat` 或 `python scripts\m1_timeframe_converter.py` |scripts/` | 脚本 | 功能 | 运行方式 |
+|-----|------|------|
+| `test_clickhouse_connection.py` | 测试数据库连接 | `python scripts\test\test_clickhouse_connection.py` |
+| `test_verify_consistency.py` | **测试一致性检查工具（完整测试套件）** | `python scripts\test\test_verify_consistency.py` |
+| `test_fxcm_downloader.py` | **测试FXCM下载器（13个测试用例）** | `python scripts\test\test_fxcm_downloader.py` |
+| `test_fxcm_importer.py` | **测试FXCM导入器（15个测试用例）** | `python scripts\test\test_fxcm_importer.py` |
+| `test_m1_converter.py` | **测试M1转换器（15个测试用例）** | `python scripts\test\test_m1_converter.py` |脚本在 `scripts/test/` 子目录中。
 
 ---
 
@@ -106,24 +117,25 @@ python scripts\test\test_clickhouse_connection.py
 
 ## 📋 脚本分类统计
 
-- **核心功能脚本**: 18个
+- **核心功能脚本**: 19个
   - 批量导入: 3个
   - 验证工具: 5个
   - 数据库管理: 3个
   - Web界面: 5个
-  - 数据工具: 2个
+  - 数据工具: 3个
   - 核心模块: 1个
 
-- **测试脚本**: 7个
+- **测试脚本**: 8个
   - 连接测试: 1个
   - 一致性测试: 1个
   - 下载器测试: 1个
+  - 导入器测试: 1个
   - 转换器测试: 1个
   - 输出测试: 1个
   - 查询示例: 1个
   - 演示设置: 1个
 
-**总计**: 25个Python脚本
+**总计**: 27个Python脚本
 
 ---
 
@@ -155,5 +167,5 @@ python scripts\test\test_clickhouse_connection.py
 ---
 
 **最后更新**: 2025-10-05  
-**版本**: v5.0.2  
-**最新改进**: M1转换器双模式 + ClickHouse可选依赖
+**版本**: v5.0.3  
+**最新改进**: FXCM数据导入器v2.0 - 双验证模式 + 智能去重 + 161K records/sec性能
