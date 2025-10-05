@@ -16,8 +16,16 @@ from pathlib import Path
 import logging
 from datetime import datetime
 from typing import List, Optional, Dict
-import clickhouse_connect
-from clickhouse_connect.driver.client import Client
+
+# Conditional import of ClickHouse (only needed for database mode)
+try:
+    import clickhouse_connect
+    from clickhouse_connect.driver.client import Client
+    CLICKHOUSE_AVAILABLE = True
+except ImportError:
+    CLICKHOUSE_AVAILABLE = False
+    clickhouse_connect = None
+    Client = None
 
 # Set UTF-8 encoding for Windows console
 if sys.platform == 'win32':
@@ -88,8 +96,8 @@ class M1TimeframeConverter:
         self.overwrite = overwrite
         self.conversion_mode = conversion_mode
         
-        # ClickHouse client
-        self.client: Optional[Client] = None
+        # ClickHouse client (only used in database mode)
+        self.client = None  # Type: Optional[Client] if CLICKHOUSE_AVAILABLE else None
         
         # Statistics
         self.stats = {
@@ -130,6 +138,10 @@ class M1TimeframeConverter:
         
     def connect_clickhouse(self):
         """Establish connection to ClickHouse"""
+        if not CLICKHOUSE_AVAILABLE:
+            self.logger.error("❌ ClickHouse module not available. Install with: pip install clickhouse-connect")
+            return False
+            
         try:
             self.client = clickhouse_connect.get_client(
                 host=self.ch_host,
