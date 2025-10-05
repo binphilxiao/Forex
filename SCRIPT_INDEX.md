@@ -43,7 +43,8 @@
 ### 数据工具
 | 脚本 | 功能 | 运行方式 |
 |-----|------|---------|
-| `download_fxcm_candles.py` | 下载FXCM历史数据 | `python scripts\download_fxcm_candles.py` |
+| `fxcm_data_downloader.py` | **FXCM数据下载器v2.0（推荐）** - 命令行参数，灵活配置 | `download_fxcm_data.bat` 或 `python scripts\fxcm_data_downloader.py` |
+| `download_fxcm_candles.py` | 下载FXCM历史数据（旧版） | `python scripts\download_fxcm_candles.py` |
 | `convert_m1_to_multi_timeframes.py` | M1数据转换为多时间周期 | `python scripts\convert_m1_to_multi_timeframes.py` |
 
 ### 核心模块
@@ -59,6 +60,7 @@
 |-----|------|---------|
 | `test_clickhouse_connection.py` | 测试数据库连接 | `python scripts\test\test_clickhouse_connection.py` |
 | `test_verify_consistency.py` | **测试一致性检查工具（完整测试套件）** | `python scripts\test\test_verify_consistency.py` |
+| `test_fxcm_downloader.py` | **测试FXCM下载器（13个测试用例）** | `python scripts\test\test_fxcm_downloader.py` |
 | `test_output.py` | 测试输出格式 | `python scripts\test\test_output.py` |
 | `query_examples.py` | SQL查询示例 | `python scripts\test\query_examples.py` |
 | `demo_setup.py` | 演示环境设置 | `python scripts\test\demo_setup.py` |
@@ -104,21 +106,23 @@ python scripts\test\test_clickhouse_connection.py
 
 ## 📋 脚本分类统计
 
-- **核心功能脚本**: 18个
+- **核心功能脚本**: 19个
   - 批量导入: 3个
-  - 验证工具: 4个
+  - 验证工具: 5个
   - 数据库管理: 3个
   - Web界面: 5个
-  - 数据工具: 2个
+  - 数据工具: 3个
   - 核心模块: 1个
 
-- **测试脚本**: 4个
+- **测试脚本**: 6个
   - 连接测试: 1个
+  - 一致性测试: 1个
+  - 下载器测试: 1个
   - 输出测试: 1个
   - 查询示例: 1个
   - 演示设置: 1个
 
-**总计**: 22个Python脚本
+**总计**: 25个Python脚本
 
 ---
 
@@ -144,10 +148,11 @@ python scripts\test\test_clickhouse_connection.py
 - **测试连接**: `python scripts\test\test_clickhouse_connection.py`
 
 ### 我想...下载数据
-- **下载FXCM数据**: `python scripts\download_fxcm_candles.py`
+- **下载FXCM数据（推荐v2.0）**: `download_fxcm_data.bat` - 支持命令行参数
+- **下载FXCM数据（旧版）**: `python scripts\download_fxcm_candles.py`
 - **转换时间周期**: `python scripts\convert_m1_to_multi_timeframes.py`
 
 ---
 
-**最后更新**: 2025-10-04  
-**版本**: v4.1.0
+**最后更新**: 2025-10-05  
+**版本**: v5.0.1
