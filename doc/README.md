@@ -11,7 +11,6 @@ doc/
 ├── README.md                                    # 本文件 - 文档索引
 ├── CHANGELOG.md                                 # 项目更新日志
 ├── 日志文件路径检查.md                           # 日志系统配置说明
-├── fxcm_downloader_retry_mechanism.md           # 下载器重试机制详解
 │
 ├── requirement/                                 # 需求文档
 │   ├── fxcm_downloader_requirements.md          # FXCM下载器需求规格
@@ -36,7 +35,6 @@ doc/
 |-----|------|--------|
 | [CHANGELOG.md](CHANGELOG.md) | **项目变更历史** - 记录所有版本更新 | ⭐⭐⭐⭐⭐ |
 | [日志文件路径检查.md](日志文件路径检查.md) | **日志系统说明** - 日志配置和位置 | ⭐⭐⭐⭐ |
-| [fxcm_downloader_retry_mechanism.md](fxcm_downloader_retry_mechanism.md) | **重试机制详解** - 网络故障处理策略 | ⭐⭐⭐⭐ |
 
 ---
 
@@ -51,8 +49,7 @@ FXCM数据下载器v2.0是一个功能强大的历史数据获取工具，支持
 |---------|--------|---------|
 | **需求规格** | [requirement/fxcm_downloader_requirements.md](requirement/fxcm_downloader_requirements.md) | • 功能需求 (FR-1 ~ FR-12)<br>• 非功能需求 (NFR-1 ~ NFR-10)<br>• 用户故事和验收标准 |
 | **架构设计** | [design/fxcm_downloader_design.md](design/fxcm_downloader_design.md) | • 系统架构图<br>• 类设计详解<br>• API集成方案<br>• 数据结构设计 |
-| **用户手册** | [manual/fxcm_downloader_manual.md](manual/fxcm_downloader_manual.md) | • 安装指南<br>• 命令行参数说明<br>• 9+ 使用示例<br>• 故障排查 (6个常见问题)<br>• 常见问题 (10个FAQ) |
-| **重试机制** | [fxcm_downloader_retry_mechanism.md](fxcm_downloader_retry_mechanism.md) | • 重试策略详解<br>• 性能影响分析<br>• 最佳实践建议<br>• 代码实现说明 |
+| **用户手册** | [manual/fxcm_downloader_manual.md](manual/fxcm_downloader_manual.md) | • 安装指南<br>• 命令行参数说明<br>• 9+ 使用示例<br>• 重试机制说明<br>• 故障排查 (6个常见问题)<br>• 常见问题 (10个FAQ) |
 
 #### 快速开始
 ```bash
@@ -113,7 +110,6 @@ verify_consistency.bat
 - ✅ **CHANGELOG.md** - 完整的版本历史
 - ✅ **FXCM下载器完整文档** (需求/设计/手册)
 - ✅ **数据一致性验证完整文档** (需求/设计/手册)
-- ✅ **重试机制专项文档**
 - ✅ **日志系统配置文档**
 
 ---
@@ -177,4 +173,5 @@ verify_consistency.bat
 
 **最后更新**: 2025-10-05  
 **文档版本**: v5.0.2  
+**文件总数**: 8个核心文档  
 **维护者**: binphilxiao
