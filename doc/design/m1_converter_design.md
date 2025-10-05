@@ -19,7 +19,17 @@ The M1 Timeframe Converter is designed as a standalone Python application that r
 │                       (Python 3.7+)                         │
 └─────────────────────────────────────────────────────────────┘
                              │
-          ┌──────────────────┼──────────────────┐
+    **Advanced:**
+```bash
+python scripts\m1_timeframe_converter.py \
+    --pairs EURUSD GBPUSD \
+    --timeframes M5 H1 \
+    --start-year 2020 \
+    --end-year 2024 \
+    --overwrite \
+    --ch-host 192.168.1.100 \
+    --ch-port 8123
+```──────────────┼──────────────────┐
           │                  │                  │
           ▼                  ▼                  ▼
     ┌──────────┐      ┌───────────┐     ┌──────────┐
@@ -105,7 +115,7 @@ class M1TimeframeConverter:
 - `ch_port`: ClickHouse HTTP port
 - `ch_user`: ClickHouse username
 - `ch_password`: ClickHouse password
-- `overwrite`: Whether to overwrite existing data
+- `overwrite`: Whether to overwrite existing data (default: False, skip existing)
 
 **Actions:**
 - Store configuration
@@ -194,7 +204,7 @@ df.set_index('DateTime').resample('5T').agg({
 **Returns:** Boolean (success/failure)
 
 **Algorithm:**
-1. Check if data exists (if skip mode)
+1. Check if data exists (default: skip if exists)
 2. Read M1 data from ClickHouse
 3. Aggregate to target timeframe
 4. Write to ClickHouse

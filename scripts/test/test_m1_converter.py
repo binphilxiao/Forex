@@ -35,7 +35,7 @@ class TestM1TimeframeConverter(unittest.TestCase):
         self.converter = M1TimeframeConverter(
             ch_host='192.168.2.168',
             ch_port=8123,
-            overwrite=True
+            overwrite=False  # Default: skip existing
         )
         
     def test_01_initialization(self):
@@ -45,9 +45,9 @@ class TestM1TimeframeConverter(unittest.TestCase):
         self.assertIsNotNone(self.converter)
         self.assertEqual(self.converter.ch_host, '192.168.2.168')
         self.assertEqual(self.converter.ch_port, 8123)
-        self.assertTrue(self.converter.overwrite)
+        self.assertFalse(self.converter.overwrite)  # Default is skip
         
-        print("✅ Converter initialized successfully")
+        print("✅ Converter initialized successfully (default: skip existing)")
         
     def test_02_available_pairs(self):
         """Test TC-02: Available pairs configuration"""

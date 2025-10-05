@@ -114,12 +114,24 @@ python scripts\m1_timeframe_converter.py --start-year 2022 --end-year 2024
 ### Example 3: Incremental Update
 
 ```bash
-python scripts\m1_timeframe_converter.py --skip-existing
+python scripts\m1_timeframe_converter.py
 ```
 
 **Output:**
-- Skips years with existing data
+- Default mode: Skip existing data
+- Only processes new/missing data
 - Much faster for updates
+
+### Example 4: Force Overwrite
+
+```bash
+python scripts\m1_timeframe_converter.py --overwrite
+```
+
+**Output:**
+- Overwrites all existing data
+- Ensures latest M1 data is used
+- Takes longer but guarantees freshness
 
 ### Example 4: Specific Pair and Timeframe
 
@@ -198,7 +210,7 @@ Processing Time: 1247.5 seconds
 | `--timeframes` | List | All 4 | Timeframes to generate |
 | `--start-year` | Int | 2015 | Start year |
 | `--end-year` | Int | Current | End year |
-| `--skip-existing` | Flag | False | Skip existing data |
+| `--overwrite` | Flag | False | Overwrite existing data (default: skip) |
 | `--ch-host` | Str | 192.168.2.168 | ClickHouse host |
 | `--ch-port` | Int | 8123 | ClickHouse HTTP port |
 | `--ch-user` | Str | default | Username |

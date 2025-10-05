@@ -65,7 +65,7 @@ class M1TimeframeConverter:
                  ch_port: int = 8123,
                  ch_user: str = 'default',
                  ch_password: str = '',
-                 overwrite: bool = True):
+                 overwrite: bool = False):
         """
         Initialize M1 Timeframe Converter
         
@@ -74,7 +74,7 @@ class M1TimeframeConverter:
             ch_port (int): ClickHouse HTTP port (default: 8123)
             ch_user (str): ClickHouse username
             ch_password (str): ClickHouse password
-            overwrite (bool): Whether to overwrite existing data
+            overwrite (bool): Whether to overwrite existing data (default: False, skip existing)
         """
         # ClickHouse connection parameters
         self.ch_host = ch_host
@@ -446,7 +446,7 @@ class M1TimeframeConverter:
         self.logger.info(f"Timeframes: {', '.join(timeframes)}")
         self.logger.info(f"Year Range: {start_year} - {end_year}")
         self.logger.info(f"ClickHouse: {self.ch_host}:{self.ch_port}")
-        self.logger.info(f"Overwrite Mode: {'Yes' if self.overwrite else 'No (Skip existing)'}")
+        self.logger.info(f"Mode: {'Overwrite existing data' if self.overwrite else 'Skip existing data (default)'}")
         self.logger.info("="*60)
         
     def _print_summary(self):
@@ -513,8 +513,8 @@ Examples:
   # Convert specific year range
   python m1_timeframe_converter.py --start-year 2020 --end-year 2023
   
-  # Skip existing data (don't overwrite)
-  python m1_timeframe_converter.py --skip-existing
+  # Overwrite existing data (default is skip)
+  python m1_timeframe_converter.py --overwrite
   
   # Custom ClickHouse connection
   python m1_timeframe_converter.py --ch-host 192.168.1.100 --ch-port 8123
@@ -549,9 +549,9 @@ Examples:
     )
     
     parser.add_argument(
-        '--skip-existing',
+        '--overwrite',
         action='store_true',
-        help='Skip existing data instead of overwriting (default: overwrite)'
+        help='Overwrite existing data instead of skipping (default: skip existing)'
     )
     
     parser.add_argument(
@@ -587,7 +587,7 @@ Examples:
         ch_port=args.ch_port,
         ch_user=args.ch_user,
         ch_password=args.ch_password,
-        overwrite=not args.skip_existing
+        overwrite=args.overwrite
     )
     
     # Run conversion

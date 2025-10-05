@@ -107,9 +107,9 @@ The M1 Timeframe Converter is a Python-based tool designed to aggregate 1-minute
 **Description:** The system shall support two modes for handling existing data.
 
 **Acceptance Criteria:**
-- **Overwrite mode (default):** Replace existing data
-- **Skip mode:** Skip years with existing data
-- Command-line flag `--skip-existing` to enable skip mode
+- **Skip mode (default):** Skip years with existing data
+- **Overwrite mode:** Replace existing data when `--overwrite` flag is used
+- Command-line flag `--overwrite` to enable overwrite mode
 - Check for existing data before processing
 - Report skipped items in logs
 
@@ -340,7 +340,7 @@ Close: Float64
 | `--timeframes` | list | All TFs | No | Timeframes to generate |
 | `--start-year` | int | 2015 | No | Start year |
 | `--end-year` | int | Current year | No | End year |
-| `--skip-existing` | flag | False | No | Skip existing data |
+| `--overwrite` | flag | False | No | Overwrite existing data (default: skip) |
 | `--ch-host` | str | 192.168.2.168 | No | ClickHouse host |
 | `--ch-port` | int | 8123 | No | ClickHouse HTTP port |
 | `--ch-user` | str | default | No | ClickHouse username |
@@ -398,16 +398,26 @@ Close: Float64
 
 ### US-4: Skip Existing Data
 **As a** data engineer  
-**I want to** skip years that are already converted  
+**I want to** skip years that are already converted (default behavior)  
 **So that** I don't waste time re-processing
 
 **Acceptance:**
-- Run: `python m1_timeframe_converter.py --skip-existing`
+- Run: `python m1_timeframe_converter.py`
 - Check for existing data before processing
-- Skip years with complete data
+- Skip years with complete data (default)
 - Log skipped items
 
-### US-5: Generate Specific Timeframes
+### US-5: Force Overwrite
+**As a** developer  
+**I want to** force overwrite all existing data  
+**So that** I can regenerate after fixing M1 data issues
+
+**Acceptance:**
+- Run: `python m1_timeframe_converter.py --overwrite`
+- Overwrite all existing data
+- Ensure latest M1 data is used
+
+### US-6: Generate Specific Timeframes
 **As a** strategy developer  
 **I want to** generate only H1 data  
 **So that** I can test my hourly strategy
