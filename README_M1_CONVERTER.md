@@ -466,9 +466,12 @@ Forex/
 ## 📝 Version History
 
 | Version | Date | Changes |
-|---------|------|---------|  
-| 2.0.0 | 2025-10-05 | Complete rewrite with ClickHouse integration + dual conversion modes |
-| 1.0.2 | Previous | Legacy version (CSV-based) |---
+|---------|------|---------|
+| 2.0.1 | 2025-10-05 | Added dual conversion modes (local CSV / database SQL) + optional ClickHouse |
+| 2.0.0 | 2025-10-05 | Complete rewrite with ClickHouse integration |
+| 1.0.2 | Previous | Legacy version (CSV-based) |
+
+---
 
 ## 👤 Author
 

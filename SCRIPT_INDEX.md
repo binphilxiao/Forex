@@ -44,7 +44,7 @@
 | 脚本 | 功能 | 运行方式 |
 |-----|------|---------|
 | `fxcm_data_downloader.py` | **FXCM数据下载器v2.0** - 命令行参数，灵活配置，自动重试 | `download_fxcm_data.bat` 或 `python scripts\fxcm_data_downloader.py` |
-| `m1_timeframe_converter.py` | **M1时间框架转换器v2.0** - M1转M5/M15/M30/H1，ClickHouse集成，命令行参数 | `convert_m1_to_multi_timeframes.bat` 或 `python scripts\m1_timeframe_converter.py` |
+| `m1_timeframe_converter.py` | **M1时间框架转换器v2.0** - 双模式(本地CSV/数据库SQL)，M1转M5/M15/M30/H1，ClickHouse可选 | `convert_m1_to_multi_timeframes.bat` 或 `python scripts\m1_timeframe_converter.py` |
 
 ### 核心模块
 | 脚本 | 功能 | 说明 |
@@ -150,9 +150,10 @@ python scripts\test\test_clickhouse_connection.py
 
 ### 我想...下载数据
 - **下载FXCM数据**: `download_fxcm_data.bat` - 支持命令行参数，自动重试，跳过已存在文件
-- **转换M1为多时间框架**: `convert_m1_to_multi_timeframes.bat` - M1→M5/M15/M30/H1，ClickHouse集成
+- **转换M1为多时间框架**: `convert_m1_to_multi_timeframes.bat` - 双模式：本地CSV(默认)或数据库SQL，M1→M5/M15/M30/H1
 
 ---
 
 **最后更新**: 2025-10-05  
-**版本**: v5.0.2
+**版本**: v5.0.2  
+**最新改进**: M1转换器双模式 + ClickHouse可选依赖
