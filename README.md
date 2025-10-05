@@ -198,7 +198,7 @@ Forex/
 │   │   └── view_clickhouse_tables.py    # 查看表
 │   │
 │   ├── 📥 数据工具
-│   │   ├── download_fxcm_candles.py     # 下载数据
+  │   │   ├── fxcm_data_downloader.py      # 数据下载器v2.0
 │   │   ├── convert_m1_to_multi_timeframes.py # 时间周期转换
 │   │   └── check_data_completeness.py   # 数据完整性检查
 │   │

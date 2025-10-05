@@ -562,7 +562,7 @@ class FXCMMultiTimeframeConverter:
         if not self.base_path.exists():
             self.logger.error(f"数据目录不存在: {self.base_path.absolute()}")
             print(f"❌ 错误: 数据目录不存在 - {self.base_path.absolute()}")
-            print("请先运行 download_fxcm_candles.py 下载M1数据")
+            print("请先运行 fxcm_data_downloader.py 下载M1数据")
             return
         
         import time

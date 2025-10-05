@@ -1,5 +1,19 @@
 # 更新日志 (Changelog)
 
+## [5.0.2] - 2025-10-05
+
+### 重大变更
+- 🗑️ **移除旧版下载脚本** - 删除 `download_fxcm_candles.py`，统一使用 `fxcm_data_downloader.py` v2.0
+  - 所有引用已更新为新版下载器
+  - 新版下载器功能更强：命令行参数、自动重试、跳过已存在文件
+  - 详见 `README_FXCM_DOWNLOADER.md` 了解新版功能
+
+### 文档更新
+- 📝 更新 `SCRIPT_INDEX.md` - 移除旧版下载脚本，更新脚本统计（24个脚本）
+- 📝 更新 `README.md`、`PROJECT_STRUCTURE.md` - 项目结构图更新
+- 📝 更新所有脚本中的引用 - `flask_app.py`、`fxcm_web_interface.py`、`convert_m1_to_multi_timeframes.py` 等
+- 📝 更新日志文档 - `日志文件路径检查.md` 反映新的日志文件命名
+
 ## [5.0.1] - 2025-10-05
 
 ### 新增功能

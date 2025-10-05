@@ -39,7 +39,7 @@ import queue
 
 # 导入现有模块
 try:
-    from download_fxcm_candles import FXCMDataDownloader
+    from fxcm_data_downloader import FXCMDataDownloader
     from convert_m1_to_multi_timeframes import FXCMMultiTimeframeConverter
     from check_data_completeness import FXCMDataChecker
 except ImportError as e:
@@ -362,7 +362,7 @@ class FXCMWebInterface:
                 # 使用子进程而不是直接导入，避免Streamlit上下文问题
                 result = subprocess.run([
                     sys.executable, 
-                    'download_fxcm_candles.py'
+                    'fxcm_data_downloader.py'
                 ], capture_output=True, text=True, cwd=Path.cwd())
                 
                 if result.returncode == 0:

@@ -237,7 +237,7 @@ def start_download():
     print()
     
     current_task_runner = TaskRunner()
-    script_path = Path(__file__).parent / 'download_fxcm_candles.py'
+    script_path = Path(__file__).parent / 'fxcm_data_downloader.py'
     thread = threading.Thread(target=current_task_runner.run_script, args=(str(script_path), '数据下载'))
     thread.daemon = True
     thread.start()

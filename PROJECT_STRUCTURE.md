@@ -43,7 +43,7 @@ Forex/
 │   │   └── start_web.py                  # Web启动脚本
 │   │
 │   ├── 📥 Data Tools (数据工具)
-│   │   ├── download_fxcm_candles.py      # 下载FXCM数据
+│   │   ├── fxcm_data_downloader.py       # FXCM数据下载器v2.0
 │   │   └── convert_m1_to_multi_timeframes.py  # 时间周期转换
 │   │
 │   └── 🧪 test/ (测试脚本)
@@ -163,7 +163,7 @@ start_web_ui.bat
   - `start_web.py`: Web启动脚本
 
 - **数据工具**:
-  - `download_fxcm_candles.py`: 下载FXCM数据
+  - `fxcm_data_downloader.py`: FXCM数据下载器v2.0（命令行参数，自动重试）
   - `convert_m1_to_multi_timeframes.py`: 时间周期转换
 
 ### `/scripts/test/` - 测试脚本

@@ -2,7 +2,11 @@
 
 ## 📍 快速查找
 
-所有Python脚本已统一放在 `scripts/` 目录下，测试脚本在 `scripts/test/` 子目录中。
+所有Python脚本已统### 数据工具
+| 脚本 | 功能 | 运行方式 |
+|-----|------|---------||
+| `fxcm_data_downloader.py` | **FXCM数据下载器v2.0** - 命令行参数，灵活配置，自动重试 | `download_fxcm_data.bat` 或 `python scripts\fxcm_data_downloader.py` |
+| `convert_m1_to_multi_timeframes.py` | M1数据转换为多时间周期 | `python scripts\convert_m1_to_multi_timeframes.py` |cripts/` 目录下，测试脚本在 `scripts/test/` 子目录中。
 
 ---
 
@@ -106,12 +110,12 @@ python scripts\test\test_clickhouse_connection.py
 
 ## 📋 脚本分类统计
 
-- **核心功能脚本**: 19个
+- **核心功能脚本**: 18个
   - 批量导入: 3个
   - 验证工具: 5个
   - 数据库管理: 3个
   - Web界面: 5个
-  - 数据工具: 3个
+  - 数据工具: 2个
   - 核心模块: 1个
 
 - **测试脚本**: 6个
@@ -122,7 +126,7 @@ python scripts\test\test_clickhouse_connection.py
   - 查询示例: 1个
   - 演示设置: 1个
 
-**总计**: 25个Python脚本
+**总计**: 24个Python脚本
 
 ---
 
@@ -148,8 +152,7 @@ python scripts\test\test_clickhouse_connection.py
 - **测试连接**: `python scripts\test\test_clickhouse_connection.py`
 
 ### 我想...下载数据
-- **下载FXCM数据（推荐v2.0）**: `download_fxcm_data.bat` - 支持命令行参数
-- **下载FXCM数据（旧版）**: `python scripts\download_fxcm_candles.py`
+- **下载FXCM数据**: `download_fxcm_data.bat` - 支持命令行参数，自动重试，跳过已存在文件
 - **转换时间周期**: `python scripts\convert_m1_to_multi_timeframes.py`
 
 ---

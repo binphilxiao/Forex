@@ -145,7 +145,7 @@ class SimpleFXCMWebInterface:
     def check_script_files(self):
         """检查必要的脚本文件是否存在"""
         required_scripts = {
-            'download_fxcm_candles.py': '数据下载脚本',
+            'fxcm_data_downloader.py': 'FXCM数据下载器v2.0',
             'convert_m1_to_multi_timeframes.py': '数据转换脚本',
             'check_data_completeness.py': '数据分析脚本'
         }
@@ -212,7 +212,7 @@ class SimpleFXCMWebInterface:
         
         # 检查脚本文件
         existing_scripts, missing_scripts = self.check_script_files()
-        download_script_exists = any(script[0] == 'download_fxcm_candles.py' for script in existing_scripts)
+        download_script_exists = any(script[0] == 'fxcm_data_downloader.py' for script in existing_scripts)
         
         col1, col2 = st.columns([3, 1])
         
@@ -241,14 +241,14 @@ class SimpleFXCMWebInterface:
             
         # 显示状态信息
         if not download_script_exists:
-            st.error("❌ 下载脚本不存在: download_fxcm_candles.py")
+            st.error("❌ 下载脚本不存在: fxcm_data_downloader.py")
         elif len(config['instruments']) == 0:
             st.warning("⚠️ 请先选择要下载的货币对")
         elif st.session_state.task_running:
             st.info("🔄 有任务正在运行，请等待完成")
             
         if download_btn and can_download:
-            self.run_script_command('download_fxcm_candles.py', '数据下载')
+            self.run_script_command('fxcm_data_downloader.py', 'FXCM数据下载')
             st.rerun()
             
         # 显示下载统计

@@ -14,7 +14,7 @@
 
 ## 功能性需求
 
-### 1. 数据下载模块 (download_fxcm_candles.py)
+### 1. 数据下载模块 (fxcm_data_downloader.py)
 
 #### 1.1 核心功能需求
 - **FR-001**: 系统应支持从FXCM公开API自动下载历史外汇数据
