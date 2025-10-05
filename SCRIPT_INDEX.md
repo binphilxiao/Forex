@@ -44,7 +44,7 @@
 | 脚本 | 功能 | 运行方式 |
 |-----|------|---------|
 | `fxcm_data_downloader.py` | **FXCM数据下载器v2.0** - 命令行参数，灵活配置，自动重试 | `download_fxcm_data.bat` 或 `python scripts\fxcm_data_downloader.py` |
-| `convert_m1_to_multi_timeframes.py` | M1数据转换为多时间周期 | `python scripts\convert_m1_to_multi_timeframes.py` |
+| `m1_timeframe_converter.py` | **M1时间框架转换器v2.0** - M1转M5/M15/M30/H1，ClickHouse集成，命令行参数 | `convert_m1_to_multi_timeframes.bat` 或 `python scripts\m1_timeframe_converter.py` |
 
 ### 核心模块
 | 脚本 | 功能 | 说明 |
@@ -60,6 +60,7 @@
 | `test_clickhouse_connection.py` | 测试数据库连接 | `python scripts\test\test_clickhouse_connection.py` |
 | `test_verify_consistency.py` | **测试一致性检查工具（完整测试套件）** | `python scripts\test\test_verify_consistency.py` |
 | `test_fxcm_downloader.py` | **测试FXCM下载器（13个测试用例）** | `python scripts\test\test_fxcm_downloader.py` |
+| `test_m1_converter.py` | **测试M1转换器（15个测试用例）** | `python scripts\test\test_m1_converter.py` |
 | `test_output.py` | 测试输出格式 | `python scripts\test\test_output.py` |
 | `query_examples.py` | SQL查询示例 | `python scripts\test\query_examples.py` |
 | `demo_setup.py` | 演示环境设置 | `python scripts\test\demo_setup.py` |
@@ -113,15 +114,16 @@ python scripts\test\test_clickhouse_connection.py
   - 数据工具: 2个
   - 核心模块: 1个
 
-- **测试脚本**: 6个
+- **测试脚本**: 7个
   - 连接测试: 1个
   - 一致性测试: 1个
   - 下载器测试: 1个
+  - 转换器测试: 1个
   - 输出测试: 1个
   - 查询示例: 1个
   - 演示设置: 1个
 
-**总计**: 24个Python脚本
+**总计**: 25个Python脚本
 
 ---
 
@@ -148,7 +150,7 @@ python scripts\test\test_clickhouse_connection.py
 
 ### 我想...下载数据
 - **下载FXCM数据**: `download_fxcm_data.bat` - 支持命令行参数，自动重试，跳过已存在文件
-- **转换时间周期**: `python scripts\convert_m1_to_multi_timeframes.py`
+- **转换M1为多时间框架**: `convert_m1_to_multi_timeframes.bat` - M1→M5/M15/M30/H1，ClickHouse集成
 
 ---
 
