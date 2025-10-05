@@ -4,7 +4,7 @@
 
 **一站式外汇历史数据下载、导入、验证和分析解决方案**
 
-![Version](https://img.shields.io/badge/version-5.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-5.0.1-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.7+-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-orange.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20MacOS-lightgrey.svg)
@@ -22,9 +22,22 @@ FXCM 外汇数据管理系统是一个功能完整的数据处理平台，提供
 - **📥 数据下载** - 自动下载FXCM历史数据（2015-2025，10年数据）
 - **💾 数据库导入** - 快速导入ClickHouse数据库（10-20倍速度提升）
 - **✅ 数据验证** - 多级数据质量检查（A+评分系统）
-- **📊 可视化报告** - 精美的HTML报告（数据完整性、导入统计）
+- **� 一致性验证** - CSV与数据库数据一致性验证（双模式）
+- **�📊 可视化报告** - 精美的HTML报告（数据完整性、导入统计、一致性）
 - **🌐 Web界面** - 现代化的Flask Web管理界面
-- **🔍 智能检查** - 快速模式和详细模式双重验证
+- **⚡ 智能检查** - 快速模式和详细模式双重验证
+
+---
+
+## ✨ v5.0.1 最新更新
+
+### 🔍 数据一致性验证工具
+- **双模式验证** - 快速模式（默认）和详细模式
+- **HTML可视化报告** - 精美的渐变设计报告界面
+- **终端彩色输出** - 实时进度和彩色状态标记
+- **完整文档** - 需求、设计、手册、FAQ（4,750行）
+- **测试覆盖** - 5个测试，100%通过率
+- **验证结果** - 98.7%一致性（3,290/3,332文件）
 
 ---
 
@@ -62,6 +75,7 @@ Windows用户可直接双击运行：
 batch_import.bat        # 快速导入所有数据
 verify_data.bat         # 验证数据质量
 comprehensive_check.bat # 详细校验
+verify_consistency.bat  # 数据一致性验证
 start_web_ui.bat       # 启动Web界面
 ```
 
@@ -77,7 +91,10 @@ python scripts\verify_all_data.py
 # 3. 详细校验（交互式）
 python scripts\comprehensive_check.py
 
-# 4. 启动Web界面
+# 4. 数据一致性验证（CSV vs ClickHouse）
+python scripts\verify_data_consistency.py
+
+# 5. 启动Web界面
 python scripts\start_web.py
 ```
 
@@ -1029,6 +1046,6 @@ FXCM 历史数据下载器
 
 Made with ❤️ by binphilxiao
 
-**最后更新**: 2025年10月4日 | **版本**: v5.0.0
+**最后更新**: 2025年10月5日 | **版本**: v5.0.1
 
 </div>
