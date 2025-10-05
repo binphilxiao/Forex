@@ -25,6 +25,10 @@ The M1 Timeframe Converter is a professional-grade Python tool that aggregates 1
 - Efficient batch processing
 - Auto-table creation
 
+✅ **Dual Conversion Modes**
+- Local mode: CSV-based processing (default)
+- Database mode: ClickHouse SQL aggregation
+
 ✅ **Flexible CLI**
 - Selective pair/timeframe conversion
 - Custom date ranges
@@ -61,7 +65,13 @@ python scripts\m1_timeframe_converter.py --timeframes M5 H1
 python scripts\m1_timeframe_converter.py --start-year 2020 --end-year 2024
 
 # Skip existing data (faster)
-python scripts\m1_timeframe_converter.py --skip-existing
+python scripts\m1_timeframe_converter.py
+
+# Use local mode (CSV-based, default)
+python scripts\m1_timeframe_converter.py --mode local
+
+# Use database mode (ClickHouse SQL, ultra-fast)
+python scripts\m1_timeframe_converter.py --mode database
 ```
 
 ---
@@ -206,6 +216,7 @@ Processing Time: 1247.5 seconds
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
+| `--mode` | Str | local | Conversion mode: 'local' or 'database' |
 | `--pairs` | List | All 6 | Currency pairs to convert |
 | `--timeframes` | List | All 4 | Timeframes to generate |
 | `--start-year` | Int | 2015 | Start year |
@@ -244,6 +255,7 @@ Processing Time: 1247.5 seconds
 
 ### Additional Resources
 
+- **Conversion Modes Guide:** `doc/manual/m1_converter_modes.md`
 - **Test Suite:** `scripts/test/test_m1_converter.py`
 - **Windows Launcher:** `convert_m1_to_multi_timeframes.bat`
 - **Log Directory:** `logs/`
@@ -454,11 +466,9 @@ Forex/
 ## 📝 Version History
 
 | Version | Date | Changes |
-|---------|------|---------|
-| 2.0.0 | 2025-10-05 | Complete rewrite with ClickHouse integration |
-| 1.0.2 | Previous | Legacy version (CSV-based) |
-
----
+|---------|------|---------|  
+| 2.0.0 | 2025-10-05 | Complete rewrite with ClickHouse integration + dual conversion modes |
+| 1.0.2 | Previous | Legacy version (CSV-based) |---
 
 ## 👤 Author
 

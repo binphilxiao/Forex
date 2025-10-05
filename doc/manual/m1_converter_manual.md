@@ -142,6 +142,7 @@ python scripts\m1_timeframe_converter.py [OPTIONS]
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
+| `--mode` | String | local | Conversion mode: 'local' or 'database' |
 | `--pairs` | List | All 6 pairs | Currency pairs to convert |
 | `--timeframes` | List | All 4 TFs | Timeframes to generate |
 | `--start-year` | Integer | 2015 | Start year |
@@ -304,6 +305,152 @@ python scripts\m1_timeframe_converter.py --ch-host 192.168.1.100 --ch-port 8123
 - Uses custom port
 
 **Use Case:** Multiple ClickHouse servers or different environments
+
+### 5.9 Example 9: Local Mode (CSV-based, Default)
+
+**Command:**
+```bash
+python scripts\m1_timeframe_converter.py --mode local
+```
+
+**What it does:**
+- Reads M1 data from CSV files in `fxcm_data/`
+- Uses pandas for aggregation calculation
+- Saves results to CSV files in `fxcm_data/`
+- **Does NOT require ClickHouse connection**
+
+**Use Case:** Local development, offline analysis, data backup
+
+**Data Flow:**
+```
+fxcm_data/EURUSD/M1/2024/week_*.csv
+  ↓ pandas read
+  ↓ pandas resample aggregation
+  ↓ pandas write
+fxcm_data/EURUSD/M5/2024/2024.csv
+```
+
+### 5.10 Example 10: Database Mode (ClickHouse SQL)
+
+**Command:**
+```bash
+python scripts\m1_timeframe_converter.py --mode database
+```
+
+**What it does:**
+- Uses ClickHouse SQL for aggregation (**data never leaves database**)
+- Ultra-fast processing (~10x faster than local mode)
+- Requires ClickHouse connection
+
+**Use Case:** Production environment, large-scale data, high-performance processing
+
+**SQL Flow:**
+```sql
+INSERT INTO forex_eurusd_m5
+SELECT 
+    toStartOfInterval(DateTime, INTERVAL 5 MINUTE) as DateTime,
+    argMin(Open, DateTime) as Open,
+    max(High) as High,
+    min(Low) as Low,
+    argMax(Close, DateTime) as Close
+FROM forex_eurusd_m1
+WHERE toYear(DateTime) = 2024
+GROUP BY DateTime
+ORDER BY DateTime
+```
+
+### 5.11 Example 11: Combined Parameters with Mode
+
+**Command:**
+```bash
+python scripts\m1_timeframe_converter.py ^
+    --mode local ^
+    --pairs EURUSD GBPUSD ^
+    --timeframes M5 M15 ^
+    --start-year 2022 ^
+    --end-year 2024
+```
+
+**What it does:**
+- **Local mode**: CSV → pandas → CSV
+- Converts EURUSD and GBPUSD only
+- Generates M5 and M15 only
+- Processes years 2022-2024
+- Default behavior: skip existing
+
+**Use Case:** Targeted local update without database dependency
+
+### 5.12 Example 12: Combined Database Mode
+
+**Command:**  
+```bash
+python scripts\m1_timeframe_converter.py ^
+    --mode database ^
+    --pairs EURUSD ^
+    --timeframes M5 ^
+    --start-year 2024 ^
+    --overwrite
+```
+
+**What it does:**
+- **Database mode**: ClickHouse SQL aggregation
+- EURUSD only
+- M5 only  
+- 2024 only
+- Overwrite existing data
+
+**Use Case:** High-speed production refresh
+
+---
+
+## 6. Understanding Output
+
+### 6.1 Console Output - Local Mode
+
+**Header:**
+```
+============================================================
+M1 to Multi-Timeframe Converter v2.0
+============================================================
+Currency Pairs: EURUSD, GBPUSD
+Timeframes: M5, M15
+Year Range: 2020 - 2024
+Conversion Mode: Local (CSV → pandas → CSV)
+Data Directory: C:\Users\...\Forex\fxcm_data
+============================================================
+```
+
+**Progress:**
+```
+Processing: EURUSD
+  📅 Year: 2024
+  🕑 Timeframe: M5
+    📁 Read 525,600 M1 records from CSV for EURUSD 2024
+    ✅ Wrote 105,120 records to fxcm_data\EURUSD\M5\2024\2024.csv
+```
+
+### 6.2 Console Output - Database Mode
+
+**Header:**
+```
+============================================================
+M1 to Multi-Timeframe Converter v2.0
+============================================================
+Currency Pairs: EURUSD, GBPUSD
+Timeframes: M5, M15
+Year Range: 2020 - 2024
+Conversion Mode: Database (ClickHouse SQL)
+ClickHouse: 192.168.2.168:8123
+============================================================
+```
+
+**Progress:**
+```
+Processing: EURUSD
+  📅 Year: 2024
+  🕑 Timeframe: M5
+    ✅ Generated 105,120 M5 records in ClickHouse for EURUSD 2024 (SQL aggregation)
+```
 
 ### 5.9 Example 9: Combined Parameters
 
@@ -638,14 +785,77 @@ Run the test suite:
 python scripts\test\test_m1_converter.py
 ```
 
-### Q9: Can I convert data from CSV files instead of ClickHouse?
+### Q9: Should I use local mode or database mode?
 
-**A:** Current version only supports ClickHouse. For CSV:
-1. Load CSV into ClickHouse first (use FXCM downloader)
-2. Then use this tool
-3. Or modify `read_m1_data()` method to read CSV
+**A:** Choose based on your needs:
 
-### Q10: What if I get errors for some years but not others?
+**Use Local Mode (--mode local) if:**
+- ✅ You have CSV data in `fxcm_data/` folder
+- ✅ You want offline processing (no database needed)
+- ✅ You need flexibility for custom calculations
+- ✅ Data volume is under 10 million M1 records
+- ✅ Development/testing environment
+
+**Use Database Mode (--mode database) if:**
+- ✅ M1 data is already in ClickHouse
+- ✅ You need maximum speed (~10x faster)
+- ✅ Processing large datasets (100M+ records)
+- ✅ Production environment
+- ✅ Integration with other database systems
+
+**Performance Comparison:**
+| Dataset | Local Mode | Database Mode |
+|---------|------------|---------------|
+| 1 year, 1 pair, all TFs | ~45 sec | ~5 sec |
+| 10 years, 1 pair, all TFs | ~5 min | ~30 sec |
+| 10 years, 6 pairs, all TFs | ~30 min | ~3 min |
+
+**See also:** `doc/manual/m1_converter_modes.md` for detailed comparison
+
+### Q10: Can I mix local mode and database mode?
+
+**A:** Yes, but not recommended:
+- Local mode writes to CSV files
+- Database mode writes to ClickHouse tables
+- They are independent output paths
+
+**Best practice:** Choose one mode and stick with it for consistency.
+
+### Q11: Does local mode still need ClickHouse?
+
+**A:** 
+- **For conversion:** No! Local mode is completely independent.
+- **For source data:** Only if you want to import M1 data to ClickHouse first.
+
+**Typical workflows:**
+
+**Pure Local Workflow (No ClickHouse needed):**
+```bash
+# 1. Download M1 CSV data
+python scripts\fxcm_data_downloader.py
+
+# 2. Convert using local mode
+python scripts\m1_timeframe_converter.py --mode local
+
+# 3. Use CSV files directly
+# Files in: fxcm_data/EURUSD/M5/2024/2024.csv
+```
+
+**Database Workflow:**
+```bash
+# 1. Download M1 CSV data
+python scripts\fxcm_data_downloader.py
+
+# 2. Import to ClickHouse
+python scripts\batch_import_m1.py
+
+# 3. Convert using database mode
+python scripts\m1_timeframe_converter.py --mode database
+
+# 4. Query from ClickHouse
+```
+
+### Q12: What if I get errors for some years but not others?
 
 **A:**
 - The tool continues processing even if one year fails
@@ -657,7 +867,74 @@ python scripts\test\test_m1_converter.py
 
 ## 9. Best Practices
 
-### 9.1 Recommended Workflow
+### 9.1 Choosing the Right Conversion Mode
+
+**For Development/Testing:**
+```bash
+# Use local mode (no database needed)
+python scripts\m1_timeframe_converter.py --mode local --pairs EURUSD --start-year 2024
+```
+
+**For Production (Small-Medium Data):**
+```bash
+# Local mode is simpler and sufficient
+python scripts\m1_timeframe_converter.py --mode local
+```
+
+**For Production (Large Data, High Performance):**
+```bash
+# Database mode for maximum speed
+python scripts\m1_timeframe_converter.py --mode database
+```
+
+### 9.2 Recommended Workflows
+
+**Workflow A: Pure Local Mode (No Database)**
+
+Best for: Development, testing, offline analysis
+
+```bash
+# Step 1: Download M1 CSV data
+python scripts\fxcm_data_downloader.py
+
+# Step 2: Convert using local mode
+python scripts\m1_timeframe_converter.py --mode local
+
+# Step 3: Use CSV files
+# Data in: fxcm_data/{pair}/{timeframe}/{year}/{year}.csv
+```
+
+**Workflow B: Database Mode (High Performance)**
+
+Best for: Production, large-scale processing
+
+```bash
+# Step 1: Download M1 CSV data
+python scripts\fxcm_data_downloader.py
+
+# Step 2: Import to ClickHouse
+python scripts\batch_import_m1.py
+
+# Step 3: Convert using database mode
+python scripts\m1_timeframe_converter.py --mode database
+
+# Step 4: Query from ClickHouse or export to CSV
+```
+
+**Workflow C: Hybrid Approach**
+
+Best for: Flexibility + performance
+
+```bash
+# Keep both CSV and database data
+# Use local mode for development
+python scripts\m1_timeframe_converter.py --mode local --pairs EURUSD
+
+# Use database mode for production batch processing
+python scripts\m1_timeframe_converter.py --mode database --start-year 2020
+```
+
+### 9.3 Recommended Workflow (Original - Deprecated)
 
 **Step 1: Initial Setup**
 ```bash
@@ -686,7 +963,16 @@ python scripts\test\test_m1_converter.py
 cat logs\m1_converter_report_*.txt
 ```
 
-### 9.2 Performance Tips
+### 9.4 Performance Tips
+
+✅ **Process year by year** for large datasets  
+✅ **Use database mode** for data >10M M1 records  
+✅ **Use local mode** for flexibility and offline processing  
+✅ **Use `--skip-existing`** for incremental updates  
+✅ **Monitor disk space** before large conversions  
+✅ **Check logs** for errors after each run  
+
+### 9.5 Data Quality Tips
 
 ✅ **Process year by year** for large datasets  
 ✅ **Use skip mode** for incremental updates  

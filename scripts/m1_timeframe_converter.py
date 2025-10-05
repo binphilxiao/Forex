@@ -65,7 +65,8 @@ class M1TimeframeConverter:
                  ch_port: int = 8123,
                  ch_user: str = 'default',
                  ch_password: str = '',
-                 overwrite: bool = False):
+                 overwrite: bool = False,
+                 conversion_mode: str = 'local'):
         """
         Initialize M1 Timeframe Converter
         
@@ -75,6 +76,7 @@ class M1TimeframeConverter:
             ch_user (str): ClickHouse username
             ch_password (str): ClickHouse password
             overwrite (bool): Whether to overwrite existing data (default: False, skip existing)
+            conversion_mode (str): Conversion mode - 'local' (default, CSV-based) or 'database' (ClickHouse SQL)
         """
         # ClickHouse connection parameters
         self.ch_host = ch_host
@@ -84,6 +86,7 @@ class M1TimeframeConverter:
         
         # Processing options
         self.overwrite = overwrite
+        self.conversion_mode = conversion_mode
         
         # ClickHouse client
         self.client: Optional[Client] = None
@@ -103,6 +106,7 @@ class M1TimeframeConverter:
         self.project_root = Path(__file__).parent.parent
         self.log_dir = self.project_root / 'logs'
         self.log_dir.mkdir(exist_ok=True)
+        self.data_dir = self.project_root / 'fxcm_data'
         
         # Setup logging
         self._setup_logging()
@@ -203,7 +207,64 @@ class M1TimeframeConverter:
             self.logger.warning(f"Table {table_name} may not exist yet: {e}")
             return None
             
-    def read_m1_data(self, pair: str, year: int) -> Optional[pd.DataFrame]:
+    def read_m1_data_from_csv(self, pair: str, year: int) -> Optional[pd.DataFrame]:
+        """
+        Read M1 data from local CSV files for a specific year
+        
+        Args:
+            pair (str): Currency pair
+            year (int): Year to read
+            
+        Returns:
+            pd.DataFrame: M1 data or None if failed
+        """
+        try:
+            # Read from CSV files (weekly files)
+            pair_dir = self.data_dir / pair / 'M1' / str(year)
+            
+            if not pair_dir.exists():
+                self.logger.warning(f"No M1 data directory found: {pair_dir}")
+                return None
+            
+            # Read all week files for the year
+            csv_files = sorted(pair_dir.glob('week_*.csv'))
+            
+            if not csv_files:
+                self.logger.warning(f"No M1 CSV files found for {pair} {year}")
+                return None
+            
+            # Read and concatenate all week files
+            dfs = []
+            for csv_file in csv_files:
+                df = pd.read_csv(csv_file)
+                dfs.append(df)
+            
+            result = pd.concat(dfs, ignore_index=True)
+            
+            # Ensure DateTime column exists and is properly formatted
+            if 'DateTime' not in result.columns and 'timestamp' in result.columns:
+                result.rename(columns={'timestamp': 'DateTime'}, inplace=True)
+            
+            result['DateTime'] = pd.to_datetime(result['DateTime'])
+            
+            # Ensure required columns exist
+            required_cols = ['DateTime', 'Open', 'High', 'Low', 'Close']
+            for col in required_cols:
+                if col not in result.columns:
+                    self.logger.error(f"Missing column {col} in CSV data")
+                    return None
+            
+            # Sort by DateTime
+            result = result.sort_values('DateTime').reset_index(drop=True)
+            
+            self.logger.info(f"  📥 Read {len(result):,} M1 records from CSV for {pair} {year}")
+            return result
+            
+        except Exception as e:
+            self.logger.error(f"  ❌ Error reading M1 CSV data for {pair} {year}: {e}")
+            return None
+    
+    def read_m1_data_from_clickhouse(self, pair: str, year: int) -> Optional[pd.DataFrame]:
         """
         Read M1 data from ClickHouse for a specific year
         
@@ -238,12 +299,28 @@ class M1TimeframeConverter:
             # Ensure DateTime is datetime type
             result['DateTime'] = pd.to_datetime(result['DateTime'])
             
-            self.logger.info(f"  📥 Read {len(result):,} M1 records for {pair} {year}")
+            self.logger.info(f"  📥 Read {len(result):,} M1 records from ClickHouse for {pair} {year}")
             return result
             
         except Exception as e:
             self.logger.error(f"  ❌ Error reading M1 data for {pair} {year}: {e}")
             return None
+    
+    def read_m1_data(self, pair: str, year: int) -> Optional[pd.DataFrame]:
+        """
+        Read M1 data (from CSV or ClickHouse based on mode)
+        
+        Args:
+            pair (str): Currency pair
+            year (int): Year to read
+            
+        Returns:
+            pd.DataFrame: M1 data or None if failed
+        """
+        if self.conversion_mode == 'local':
+            return self.read_m1_data_from_csv(pair, year)
+        else:
+            return self.read_m1_data_from_clickhouse(pair, year)
             
     def aggregate_to_timeframe(self, 
                                df: pd.DataFrame, 
@@ -278,6 +355,39 @@ class M1TimeframeConverter:
         
         return aggregated
         
+    def write_to_csv(self, 
+                     df: pd.DataFrame, 
+                     pair: str, 
+                     timeframe: str,
+                     year: int) -> bool:
+        """
+        Write aggregated data to local CSV file
+        
+        Args:
+            df (pd.DataFrame): Aggregated data
+            pair (str): Currency pair
+            timeframe (str): Timeframe
+            year (int): Year
+            
+        Returns:
+            bool: Success status
+        """
+        try:
+            # Create output directory
+            output_dir = self.data_dir / pair / timeframe / str(year)
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Save to CSV file
+            output_file = output_dir / f"{year}.csv"
+            df.to_csv(output_file, index=False)
+            
+            self.logger.info(f"  ✅ Wrote {len(df):,} records to {output_file}")
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"  ❌ Error writing to CSV: {e}")
+            return False
+    
     def write_to_clickhouse(self, 
                             df: pd.DataFrame, 
                             pair: str, 
@@ -321,6 +431,85 @@ class M1TimeframeConverter:
         except Exception as e:
             self.logger.error(f"  ❌ Error writing to ClickHouse: {e}")
             return False
+    
+    def convert_using_clickhouse_sql(self,
+                                     pair: str,
+                                     year: int,
+                                     timeframe: str) -> bool:
+        """
+        Convert M1 data using ClickHouse SQL (database-side conversion)
+        
+        Args:
+            pair (str): Currency pair
+            year (int): Year to convert
+            timeframe (str): Target timeframe
+            
+        Returns:
+            bool: Success status
+        """
+        try:
+            minutes = self.TIMEFRAME_MINUTES[timeframe]
+            source_table = f"forex_{pair.lower()}_m1"
+            target_table = self.get_table_name(pair, timeframe)
+            
+            # Create target table if not exists
+            create_table_sql = f"""
+            CREATE TABLE IF NOT EXISTS {target_table}
+            (
+                DateTime DateTime,
+                Open Float64,
+                High Float64,
+                Low Float64,
+                Close Float64
+            )
+            ENGINE = MergeTree()
+            ORDER BY DateTime
+            """
+            self.client.command(create_table_sql)
+            
+            # Delete existing data for this year if overwrite mode
+            if self.overwrite:
+                delete_sql = f"""
+                ALTER TABLE {target_table}
+                DELETE WHERE toYear(DateTime) = {year}
+                """
+                self.client.command(delete_sql)
+                self.logger.info(f"  🗑️  Deleted existing {year} data from {target_table}")
+            
+            # Aggregate using ClickHouse SQL
+            insert_sql = f"""
+            INSERT INTO {target_table}
+            SELECT 
+                toStartOfInterval(DateTime, INTERVAL {minutes} MINUTE) as DateTime,
+                argMin(Open, DateTime) as Open,
+                max(High) as High,
+                min(Low) as Low,
+                argMax(Close, DateTime) as Close
+            FROM {source_table}
+            WHERE toYear(DateTime) = {year}
+            GROUP BY DateTime
+            ORDER BY DateTime
+            """
+            
+            self.client.command(insert_sql)
+            
+            # Get record count
+            count_sql = f"""
+            SELECT count()
+            FROM {target_table}
+            WHERE toYear(DateTime) = {year}
+            """
+            result = self.client.query(count_sql)
+            count = result.result_rows[0][0] if result.result_rows else 0
+            
+            self.logger.info(f"  ✅ Generated {count:,} {timeframe} records in ClickHouse for {pair} {year}")
+            self.stats['total_records_written'] += count
+            
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"  ❌ Error in ClickHouse SQL conversion: {e}")
+            return False
             
     def convert_pair_year_timeframe(self,
                                     pair: str,
@@ -337,33 +526,44 @@ class M1TimeframeConverter:
         Returns:
             bool: Success status
         """
-        table_name = self.get_table_name(pair, timeframe)
+        # Database mode: use ClickHouse SQL for conversion
+        if self.conversion_mode == 'database':
+            return self.convert_using_clickhouse_sql(pair, year, timeframe)
         
-        # Check if data already exists
-        if not self.overwrite:
-            existing = self.get_existing_data_range(table_name, year)
-            if existing and existing['count'] > 0:
+        # Local mode: read CSV, aggregate with pandas, save to CSV
+        # Check if output file already exists
+        output_dir = self.data_dir / pair / timeframe / str(year)
+        output_file = output_dir / f"{year}.csv"
+        
+        if not self.overwrite and output_file.exists():
+            # Count records in existing file
+            try:
+                existing_df = pd.read_csv(output_file)
+                count = len(existing_df)
                 self.logger.info(f"  ⏭️  Skipping {pair} {year} {timeframe} - "
-                               f"{existing['count']} records already exist")
+                               f"{count} records already exist in {output_file}")
                 self.stats['skipped_existing'] += 1
                 return True
+            except Exception as e:
+                self.logger.warning(f"  ⚠️  Error reading existing file: {e}")
+                # Continue to regenerate
                 
-        # Read M1 data
+        # Read M1 data from CSV
         m1_data = self.read_m1_data(pair, year)
         if m1_data is None or len(m1_data) == 0:
             return False
             
         self.stats['total_records_read'] += len(m1_data)
         
-        # Aggregate to target timeframe
+        # Aggregate to target timeframe using pandas
         aggregated = self.aggregate_to_timeframe(m1_data, timeframe)
         
         if len(aggregated) == 0:
             self.logger.warning(f"  ⚠️  No data after aggregation for {pair} {year} {timeframe}")
             return False
             
-        # Write to ClickHouse
-        success = self.write_to_clickhouse(aggregated, pair, timeframe)
+        # Write to CSV
+        success = self.write_to_csv(aggregated, pair, timeframe, year)
         
         if success:
             self.stats['total_records_written'] += len(aggregated)
@@ -398,9 +598,10 @@ class M1TimeframeConverter:
         if end_year is None:
             end_year = datetime.now().year
             
-        # Connect to ClickHouse
-        if not self.connect_clickhouse():
-            return False
+        # Connect to ClickHouse (only needed for database mode)
+        if self.conversion_mode == 'database':
+            if not self.connect_clickhouse():
+                return False
             
         try:
             self._print_header(pairs, timeframes, start_year, end_year)
@@ -445,8 +646,15 @@ class M1TimeframeConverter:
         self.logger.info(f"Currency Pairs: {', '.join(pairs)}")
         self.logger.info(f"Timeframes: {', '.join(timeframes)}")
         self.logger.info(f"Year Range: {start_year} - {end_year}")
-        self.logger.info(f"ClickHouse: {self.ch_host}:{self.ch_port}")
-        self.logger.info(f"Mode: {'Overwrite existing data' if self.overwrite else 'Skip existing data (default)'}")
+        
+        if self.conversion_mode == 'local':
+            self.logger.info(f"Conversion Mode: Local (CSV → pandas → CSV)")
+            self.logger.info(f"Data Directory: {self.data_dir}")
+        else:
+            self.logger.info(f"Conversion Mode: Database (ClickHouse SQL)")
+            self.logger.info(f"ClickHouse: {self.ch_host}:{self.ch_port}")
+        
+        self.logger.info(f"Overwrite Mode: {'Yes' if self.overwrite else 'No (Skip existing)'}")
         self.logger.info("="*60)
         
     def _print_summary(self):
@@ -516,6 +724,9 @@ Examples:
   # Overwrite existing data (default is skip)
   python m1_timeframe_converter.py --overwrite
   
+  # Use database mode (ClickHouse SQL conversion)
+  python m1_timeframe_converter.py --mode database
+  
   # Custom ClickHouse connection
   python m1_timeframe_converter.py --ch-host 192.168.1.100 --ch-port 8123
         """
@@ -555,6 +766,13 @@ Examples:
     )
     
     parser.add_argument(
+        '--mode',
+        choices=['local', 'database'],
+        default='local',
+        help='Conversion mode: local (CSV-based, default) or database (ClickHouse SQL)'
+    )
+    
+    parser.add_argument(
         '--ch-host',
         default='192.168.2.168',
         help='ClickHouse host (default: 192.168.2.168)'
@@ -587,7 +805,8 @@ Examples:
         ch_port=args.ch_port,
         ch_user=args.ch_user,
         ch_password=args.ch_password,
-        overwrite=args.overwrite
+        overwrite=args.overwrite,
+        conversion_mode=args.mode
     )
     
     # Run conversion
