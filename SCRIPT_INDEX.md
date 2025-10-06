@@ -18,7 +18,6 @@
 |-----|------|---------|
 | `clickhouse_configurator.py` | **数据库配置工具** - 交互式配置数据库连接，自动测试连接，保存到config/ | `python scripts\clickhouse_configurator.py` |
 | `create_clickhouse_tables.py` | 创建数据库表 | `python scripts\create_clickhouse_tables.py` |
-| `rebuild_clickhouse_tables.py` | 重建数据库表（删除并重建） | `python scripts\rebuild_clickhouse_tables.py` |
 | `view_clickhouse_tables.py` | 查看数据库表信息 | `python scripts\view_clickhouse_tables.py` |
 
 ### Web界面
@@ -68,9 +67,6 @@ python scripts\create_clickhouse_tables.py
 
 # 查看数据库表信息
 python scripts\view_clickhouse_tables.py
-
-# 重建数据库（慎用！会删除所有数据）
-python scripts\rebuild_clickhouse_tables.py
 ```
 
 ### 高级用法
@@ -89,14 +85,14 @@ python scripts\m1_timeframe_converter.py --pairs EURUSD --timeframes M5 M15
 
 ## 📋 脚本分类统计
 
-- **核心功能脚本**: 10个
+- **核心功能脚本**: 9个
   - 验证工具: 1个
-  - 数据库管理: 4个 (含配置工具)
+  - 数据库管理: 3个 (含配置工具)
   - Web界面: 2个
   - 数据工具v2.0: 3个
   - 辅助工具: 1个
 
-**总计**: 10个Python脚本
+**总计**: 9个Python脚本
 
 ---
 
@@ -137,7 +133,7 @@ python scripts\m1_timeframe_converter.py --pairs EURUSD --timeframes M5 M15
 ### 我想...管理数据库
 - **配置数据库连接**: `python scripts\clickhouse_configurator.py` ⭐ - 交互式配置，保存到config/
 - **创建表**: `python scripts\create_clickhouse_tables.py`
-- **重建表**: `python scripts\rebuild_clickhouse_tables.py`
+- **查看表**: `python scripts\view_clickhouse_tables.py`
 
 ---
 
@@ -179,12 +175,12 @@ python scripts\m1_timeframe_converter.py --pairs EURUSD --timeframes M5 M15
 ---
 
 **最后更新**: 2025-10-06  
-**版本**: v5.0.5  
+**版本**: v5.0.6  
 **核心改进**: 
 - ✨ 全新v2.0工具链（下载、导入、转换）
-- 🗑️ 精简Web界面至2个核心脚本（删除3个冗余脚本）
+- 🗑️ 精简项目至9个核心脚本（删除rebuild等冗余工具）
 - 💾 Web界面新增"导入数据库"按钮
-- 📊 保留10个核心功能脚本
+- 📊 专注核心功能，移除危险操作
 - ⚡ 161K records/sec 超高性能导入
 - 🔧 统一配置管理 - 所有脚本从`config/clickhouse_config.json`读取配置
 - 🎯 一次配置，全局使用
