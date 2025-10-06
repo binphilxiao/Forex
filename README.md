@@ -4,7 +4,7 @@
 
 **一站式外汇历史数据下载、导入、验证和分析解决方案**
 
-![Version](https://img.shields.io/badge/version-5.0.6-blue.svg)
+![Version](https://img.shields.io/badge/version-5.0.7-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.8+-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-orange.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20MacOS-lightgrey.svg)
@@ -29,7 +29,26 @@ FXCM 外汇数据管理系统是一个功能完整的数据处理平台，提供
 
 ---
 
-## ✨ v5.0.6 最新更新
+## ✨ v5.0.7 最新更新
+
+### 📚 QUICKSTART.md 全面升级
+- **47个实用示例** - 覆盖4个核心脚本的所有参数组合
+- **参数详细说明** - 每个参数都有清晰的表格和说明
+- **5大应用场景** - 从新手到高级用户的完整流程
+- **完整参数手册**:
+  * fxcm_data_downloader.py - 9个示例
+  * fxcm_importer.py - 10个示例  
+  * m1_timeframe_converter.py - 11个示例
+  * verify_data_consistency.py - 13个示例
+
+### 🗑️ 项目精简至8个核心脚本
+- **删除未使用脚本** - 移除 `generate_import_report.py`（从未被调用）
+- **专注核心功能** - 8个脚本覆盖所有必需功能
+- **SCRIPT_INDEX更新** - 版本 v5.0.7
+
+---
+
+## ✨ v5.0.6 功能更新
 
 ### � 文档重组
 - **文档分类整理** - 所有文档移至 `doc/` 目录并分类
