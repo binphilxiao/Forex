@@ -222,8 +222,7 @@ Forex/
 │   │   ├── batch_import_all.py          # 批量导入（快速模式）
 │   │   ├── verify_all_data.py           # 数据验证
 │   │   ├── comprehensive_check.py       # 详细校验
-│   │   ├── import_fxcm_to_clickhouse.py # 导入核心类
-│   │   └── generate_import_report.py    # HTML报告生成
+│   │   └── import_fxcm_to_clickhouse.py # 导入核心类
 │   │
 │   ├── 💾 数据库工具
 │   │   ├── create_clickhouse_tables.py  # 创建表
@@ -874,7 +873,6 @@ FXCM 历史数据下载器
 - **存储优化**: 智能跳过减少90%处理时间
 
 #### 🔧 技术改进
-- 新增 `generate_import_report.py` - HTML报告生成器
 - 优化 `batch_import_all.py` - 集成报告功能
 - 改进 `import_fxcm_to_clickhouse.py` - 双模式支持
 - 完善错误处理和日志系统

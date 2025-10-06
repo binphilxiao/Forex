@@ -33,11 +33,6 @@
 | `fxcm_importer.py` | **FXCM数据导入器v2.0** ⭐ - 双验证模式(快速/全面)，智能去重，自动配置，161K records/sec | `import_fxcm_data.bat` 或 `python scripts\fxcm_importer.py` |
 | `m1_timeframe_converter.py` | **M1时间框架转换器v2.0** - 双模式(本地CSV/数据库SQL)，M1转M5/M15/M30/H1，ClickHouse可选 | `convert_m1_to_multi_timeframes.bat` 或 `python scripts\m1_timeframe_converter.py` |
 
-### 辅助工具
-| 脚本 | 功能 | 运行方式 |
-|-----|------|---------|
-| `generate_import_report.py` | HTML报告生成器 | 被其他脚本调用 |
-
 ---
 
 ## 🎯 常用操作快捷方式
@@ -85,14 +80,13 @@ python scripts\m1_timeframe_converter.py --pairs EURUSD --timeframes M5 M15
 
 ## 📋 脚本分类统计
 
-- **核心功能脚本**: 9个
+- **核心功能脚本**: 8个
   - 验证工具: 1个
   - 数据库管理: 3个 (含配置工具)
   - Web界面: 2个
   - 数据工具v2.0: 3个
-  - 辅助工具: 1个
 
-**总计**: 9个Python脚本
+**总计**: 8个Python脚本
 
 ---
 
@@ -175,14 +169,15 @@ python scripts\m1_timeframe_converter.py --pairs EURUSD --timeframes M5 M15
 ---
 
 **最后更新**: 2025-10-06  
-**版本**: v5.0.6  
+**版本**: v5.0.7  
 **核心改进**: 
 - ✨ 全新v2.0工具链（下载、导入、转换）
-- 🗑️ 精简项目至9个核心脚本（删除rebuild等冗余工具）
+- 🗑️ 精简项目至8个核心脚本（删除冗余和未使用工具）
 - 💾 Web界面新增"导入数据库"按钮
-- 📊 专注核心功能，移除危险操作
+- 📊 专注核心功能，移除危险操作和冗余脚本
 - ⚡ 161K records/sec 超高性能导入
 - 🔧 统一配置管理 - 所有脚本从`config/clickhouse_config.json`读取配置
 - 🎯 一次配置，全局使用
 - 🌐 Web界面集成4大功能：下载、导入、转换、分析
+- 📚 文档重组：根目录仅3个文件，所有文档分类到doc/
 
