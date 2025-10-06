@@ -224,8 +224,7 @@ Forex/
 │   │
 │   ├── 🌐 Web界面
 │   │   ├── flask_app.py                 # Flask应用
-│   │   ├── start_web.py                # Web启动
-│   │   └── fxcm_web_interface.py       # Web界面
+│   │   └── start_web.py                 # Web启动器
 │   │
 │   └── 🧪 test/（测试脚本）
 │       ├── test_clickhouse_connection.py

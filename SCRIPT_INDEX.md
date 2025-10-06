@@ -1,8 +1,10 @@
 # Python脚本索引
 
-## 📍 快速查找
-
-所有Python脚本已统一放在 `scripts/` 目录下。
+## 📍 快### Web界面
+| 脚本 | 功能 | 运行方式 |
+|-----|------|----------|
+| `start_web.py` | Web服务启动脚本 | `start_web_ui.bat` |
+| `flask_app.py` | Flask主应用 | 由start_web.py调用 |有Python脚本已统一放在 `scripts/` 目录下。
 
 ---
 
@@ -92,14 +94,14 @@ python scripts\m1_timeframe_converter.py --pairs EURUSD --timeframes M5 M15
 
 ## 📋 脚本分类统计
 
-- **核心功能脚本**: 13个
+- **核心功能脚本**: 10个
   - 验证工具: 1个
   - 数据库管理: 4个 (含配置工具)
-  - Web界面: 5个
+  - Web界面: 2个
   - 数据工具v2.0: 3个
   - 辅助工具: 1个
 
-**总计**: 13个Python脚本
+**总计**: 10个Python脚本
 
 ---
 
