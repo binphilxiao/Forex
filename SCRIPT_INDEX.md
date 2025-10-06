@@ -1,7 +1,8 @@
 # Python脚本索引
 
-## 📍### 批量导入工具
-| 脚本 | 功能 | 运行方式 |
+## 📍### 批## 🚀 核心功能脚本 (scripts/)
+
+### 验证工具本 | 功能 | 运行方式 |
 |-----|------|------|
 | `batch_import_all.py` | 批量导入所有数据（快速模式 + HTML报告）✨使用v2.0导入器 | `batch_import.bat` 或 `python scripts\batch_import_all.py` |
 | `batch_import_m1.py` | M1数据批量导入 ✨使用v2.0导入器 | `python scripts\batch_import_m1.py` |
@@ -121,8 +122,7 @@ python scripts\test\test_clickhouse_connection.py
 
 ## 📋 脚本分类统计
 
-- **核心功能脚本**: 14个
-  - 批量导入: 3个
+- **核心功能脚本**: 11个
   - 验证工具: 1个 (verify_data_consistency.py)
   - 数据库管理: 3个
   - Web界面: 5个
@@ -138,16 +138,15 @@ python scripts\test\test_clickhouse_connection.py
   - 查询示例: 1个
   - 演示设置: 1个
 
-**总计**: 22个Python脚本
+**总计**: 19个Python脚本
 
 ---
 
 ## 🔍 按功能快速查找
 
 ### 我想...导入数据
-- **新版导入器v2.0（推荐）**: `import_fxcm_data.bat` - 双验证模式，智能去重，161K records/sec
-- **快速批量导入**: `batch_import.bat` - 自动生成HTML报告
-- **导入M1数据**: `python scripts\batch_import_m1.py`
+- **FXCM数据导入器v2.0（推荐）**: `import_fxcm_data.bat` - 双验证模式，智能去重，161K records/sec
+- **快速批量导入**: `batch_import.bat` - 使用v2.0导入器
 
 ### 我想...验证数据
 - **数据一致性验证（推荐）**: `verify_consistency.bat` - 双模式，HTML报告

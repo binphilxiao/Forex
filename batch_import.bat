@@ -2,12 +2,12 @@
 chcp 65001 >nul
 echo.
 echo ================================================
-echo    批量导入所有数据
-echo    版本: 4.0 (快速模式)
+echo    FXCM数据批量导入 v2.0
+echo    使用新版导入器 - 双验证模式
 echo ================================================
 echo.
 
-python scripts\batch_import_all.py
+python scripts\fxcm_importer.py
 
 if errorlevel 1 (
     echo.
