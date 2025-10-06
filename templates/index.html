@@ -128,6 +128,11 @@
             color: white;
         }
         
+        .btn-warning {
+            background: linear-gradient(135deg, #ffa751 0%, #ffe259 100%);
+            color: white;
+        }
+        
         .btn-success {
             background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             color: white;
@@ -360,6 +365,10 @@
                     <span>📥</span> 下载数据
                 </button>
                 
+                <button class="btn btn-warning" id="btn-import" onclick="startImport()">
+                    <span>💾</span> 导入数据库
+                </button>
+                
                 <button class="btn btn-success" id="btn-convert" onclick="startConversion()">
                     <span>🔄</span> 转换数据
                 </button>
@@ -382,8 +391,9 @@
             <h2>💡 使用说明</h2>
             <div class="help-section">
                 <p><strong>📥 下载数据:</strong> 从FXCM服务器下载M1和D1原始历史数据（预计2-4小时）</p>
-                <p><strong>🔄 转换数据:</strong> 将M1数据转换为M5/M15/M30/H1多时间周期（需要先下载M1数据）</p>
-                <p><strong>📊 分析数据:</strong> 检查数据完整性并生成可视化报告（5-10分钟）</p>
+                <p><strong>� 导入数据库:</strong> 将CSV数据导入到ClickHouse数据库（需要先下载数据）</p>
+                <p><strong>�🔄 转换数据:</strong> 将M1数据转换为M5/M15/M30/H1多时间周期（需要先下载M1数据）</p>
+                <p><strong>📊 分析数据:</strong> 检查CSV与数据库一致性并生成可视化报告（5-10分钟）</p>
                 <p><strong>⏹ 停止任务:</strong> 点击停止按钮可以随时终止正在运行的任务</p>
             </div>
             
@@ -512,6 +522,19 @@
             window.reportOpened = false;  // 重置报告打开标记
             
             const response = await fetch('/api/start_analysis', {method: 'POST'});
+            const data = await response.json();
+            
+            if (data.success) {
+                // 任务已启动，不显示弹窗，直接开始状态更新
+                startStatusUpdates();
+            } else {
+                alert('❌ ' + data.message);
+            }
+        }
+        
+        // 开始导入数据库
+        async function startImport() {
+            const response = await fetch('/api/start_import', {method: 'POST'});
             const data = await response.json();
             
             if (data.success) {

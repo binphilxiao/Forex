@@ -276,6 +276,22 @@ def start_analysis():
     
     return jsonify({'success': True, 'message': '验证任务已启动，请查看终端输出'})
 
+@app.route('/api/start_import', methods=['POST'])
+def start_import():
+    """开始导入数据到数据库"""
+    global current_task_runner
+    
+    if task_status['running']:
+        return jsonify({'success': False, 'message': '已有任务在运行'})
+    
+    current_task_runner = TaskRunner()
+    script_path = Path(__file__).parent / 'fxcm_importer.py'
+    thread = threading.Thread(target=current_task_runner.run_script, args=(str(script_path), '数据导入'))
+    thread.daemon = True
+    thread.start()
+    
+    return jsonify({'success': True, 'message': '导入任务已启动，请查看终端输出'})
+
 @app.route('/api/status')
 def get_status():
     """获取状态"""
