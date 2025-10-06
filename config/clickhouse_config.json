@@ -4,6 +4,6 @@
     "http_port": 8123,
     "interserver_http_port": 9009,
     "user": "default",
-    "password": "YourStrongPassword",
+    "password": "yourStrongPassword",
     "database": "default"
 }

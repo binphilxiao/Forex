@@ -3,8 +3,8 @@ M1 Timeframe Converter v2.0
 Convert M1 forex data to multiple timeframes (M5, M15, M30, H1)
 
 Author: binphilxiao
-Date: 2025-10-05
-Version: 2.0.0
+Date: 2025-10-06
+Version: 2.0.1
 License: MIT
 """
 
@@ -14,6 +14,7 @@ import argparse
 import pandas as pd
 from pathlib import Path
 import logging
+import json
 from datetime import datetime
 from typing import List, Optional, Dict
 
@@ -26,6 +27,18 @@ except ImportError:
     CLICKHOUSE_AVAILABLE = False
     clickhouse_connect = None
     Client = None
+
+# Load default ClickHouse config if available
+def load_clickhouse_config():
+    """Load ClickHouse configuration from config file"""
+    config_path = Path('config/clickhouse_config.json')
+    if config_path.exists():
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {}
 
 # Set UTF-8 encoding for Windows console
 if sys.platform == 'win32':
@@ -784,29 +797,32 @@ Examples:
         help='Conversion mode: local (CSV-based, default) or database (ClickHouse SQL)'
     )
     
+    # Load default ClickHouse config
+    ch_config = load_clickhouse_config()
+    
     parser.add_argument(
         '--ch-host',
-        default='192.168.2.168',
-        help='ClickHouse host (default: 192.168.2.168)'
+        default=ch_config.get('host', '192.168.2.168'),
+        help=f"ClickHouse host (default: {ch_config.get('host', '192.168.2.168')})"
     )
     
     parser.add_argument(
         '--ch-port',
         type=int,
-        default=8123,
-        help='ClickHouse HTTP port (default: 8123)'
+        default=ch_config.get('http_port', 8123),
+        help=f"ClickHouse HTTP port (default: {ch_config.get('http_port', 8123)})"
     )
     
     parser.add_argument(
         '--ch-user',
-        default='default',
-        help='ClickHouse username (default: default)'
+        default=ch_config.get('user', 'default'),
+        help=f"ClickHouse username (default: {ch_config.get('user', 'default')})"
     )
     
     parser.add_argument(
         '--ch-password',
-        default='',
-        help='ClickHouse password (default: empty)'
+        default=ch_config.get('password', ''),
+        help='ClickHouse password (default: from config file or empty)'
     )
     
     args = parser.parse_args()

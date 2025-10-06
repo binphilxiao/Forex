@@ -4,7 +4,7 @@
 
 **一站式外汇历史数据下载、导入、验证和分析解决方案**
 
-![Version](https://img.shields.io/badge/version-5.0.3-blue.svg)
+![Version](https://img.shields.io/badge/version-5.0.4-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.7+-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-orange.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20MacOS-lightgrey.svg)
@@ -29,22 +29,40 @@ FXCM 外汇数据管理系统是一个功能完整的数据处理平台，提供
 
 ---
 
-## ✨ v5.0.3 最新更新
+## ✨ v5.0.4 最新更新
 
-### � FXCM数据导入器 v2.0
+### 🔧 统一配置管理
+- **集中配置** - 所有脚本从 `config/clickhouse_config.json` 读取配置
+- **一次配置，全局使用** - 运行配置器后，所有脚本自动使用配置
+- **配置优先级** - 命令行参数 > 配置文件 > 默认值
+- **M1转换器更新** - 现已支持配置文件，移除硬编码
+- **精简项目** - 删除所有测试脚本，保留13个核心功能脚本
+
+### 🎯 配置器工具
+```powershell
+# 首次使用：配置数据库连接
+python scripts\clickhouse_configurator.py
+
+# 之后所有脚本自动使用配置
+python scripts\fxcm_importer.py          # 自动读取配置
+python scripts\m1_timeframe_converter.py # 自动读取配置
+python scripts\verify_data_consistency.py # 自动读取配置
+```
+
+---
+
+## ✨ v5.0.3 功能特性
+
+### 💎 FXCM数据导入器 v2.0
 - **双重验证模式** - 快速模式（50K records/sec）和全面模式（10K records/sec）
 - **智能去重检测** - 自动跳过已导入文件
 - **配置文件支持** - 自动读取ClickHouse配置，无需手动输入密码
-- **完整文档** - 需求、设计、手册、README（1,800+行）
-- **测试覆盖** - 15个测试，100%通过率
 - **超高性能** - 实测161K records/sec，超出目标3倍
 
-### �🔍 数据一致性验证工具 (v5.0.1)
+### 🔍 数据一致性验证工具
 - **双模式验证** - 快速模式（默认）和详细模式
 - **HTML可视化报告** - 精美的渐变设计报告界面
 - **终端彩色输出** - 实时进度和彩色状态标记
-- **完整文档** - 需求、设计、手册、FAQ（4,750行）
-- **测试覆盖** - 5个测试，100%通过率
 - **验证结果** - 98.7%一致性（3,290/3,332文件）
 
 ---
