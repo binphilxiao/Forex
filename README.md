@@ -4,8 +4,8 @@
 
 **一站式外汇历史数据下载、导入、验证和分析解决方案**
 
-![Version](https://img.shields.io/badge/version-5.0.4-blue.svg)
-![Python](https://img.shields.io/badge/python-3.7+-green.svg)
+![Version](https://img.shields.io/badge/version-5.0.6-blue.svg)
+![Python](https://img.shields.io/badge/python-3.8+-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-orange.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20MacOS-lightgrey.svg)
 
@@ -29,14 +29,27 @@ FXCM 外汇数据管理系统是一个功能完整的数据处理平台，提供
 
 ---
 
-## ✨ v5.0.4 最新更新
+## ✨ v5.0.6 最新更新
 
-### 🔧 统一配置管理
+### � 文档重组
+- **文档分类整理** - 所有文档移至 `doc/` 目录并分类
+- **快速开始指南** - 全新的 `QUICKSTART.md` 5分钟上手
+- **文档索引** - `doc/README.md` 提供完整文档导航
+- **精简根目录** - 仅保留 README.md, QUICKSTART.md, requirements.txt
+
+### 🗑️ 项目精简
+- **删除冗余脚本** - 移除 `rebuild_clickhouse_tables.py` 等危险操作
+- **核心脚本减至9个** - 专注核心功能，提高可维护性
+- **文档分类**: 
+  - `doc/guides/` - 使用指南
+  - `doc/reference/` - 参考文档
+  - `doc/development/` - 开发文档
+
+### �🔧 统一配置管理
 - **集中配置** - 所有脚本从 `config/clickhouse_config.json` 读取配置
 - **一次配置，全局使用** - 运行配置器后，所有脚本自动使用配置
 - **配置优先级** - 命令行参数 > 配置文件 > 默认值
-- **M1转换器更新** - 现已支持配置文件，移除硬编码
-- **精简项目** - 删除所有测试脚本，保留13个核心功能脚本
+- **6个脚本使用配置** - 数据库和数据处理脚本全覆盖
 
 ### 🎯 配置器工具
 ```powershell
