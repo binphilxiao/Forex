@@ -1,10 +1,8 @@
 # Python脚本索引
 
-## 📍 快### Web界面
-| 脚本 | 功能 | 运行方式 |
-|-----|------|----------|
-| `start_web.py` | Web服务启动脚本 | `start_web_ui.bat` |
-| `flask_app.py` | Flask主应用 | 由start_web.py调用 |有Python脚本已统一放在 `scripts/` 目录下。
+## 📍 快速查找
+
+所有Python脚本已统一放在 `scripts/` 目录下。
 
 ---
 
@@ -26,11 +24,8 @@
 ### Web界面
 | 脚本 | 功能 | 运行方式 |
 |-----|------|---------|
-| `start_web.py` | Web服务启动脚本（主要） | `start_web_ui.bat` |
-| `flask_app.py` | Flask主应用 | `python scripts\flask_app.py` |
-| `fxcm_web_interface.py` | Web界面（完整版） | `python scripts\fxcm_web_interface.py` |
-| `fxcm_web_interface_simple.py` | Web界面（简化版） | `python scripts\fxcm_web_interface_simple.py` |
-| `run_web_interface.py` | Web启动器（备用） | `python scripts\run_web_interface.py` |
+| `start_web.py` | Web服务启动脚本 | `start_web_ui.bat` |
+| `flask_app.py` | Flask主应用（含导入数据库功能） | 由start_web.py调用 |
 
 ### 数据工具 (v2.0系列)
 | 脚本 | 功能 | 运行方式 |
@@ -131,9 +126,10 @@ python scripts\m1_timeframe_converter.py --pairs EURUSD --timeframes M5 M15
 
 ### 我想...查看数据
 - **Web界面（推荐）**: `start_web_ui.bat`
-  - 现代化界面
-  - 可视化图表
-  - 实时查询
+  - 现代化Flask界面
+  - 支持下载、导入、转换、分析4大功能
+  - 实时任务状态监控
+  - 金色"💾导入数据库"按钮直接调用fxcm_importer.py
 - **命令行查看**: `python scripts\view_clickhouse_tables.py`
   - 快速统计信息
   - 表结构查看
@@ -183,12 +179,14 @@ python scripts\m1_timeframe_converter.py --pairs EURUSD --timeframes M5 M15
 ---
 
 **最后更新**: 2025-10-06  
-**版本**: v5.0.4  
+**版本**: v5.0.5  
 **核心改进**: 
 - ✨ 全新v2.0工具链（下载、导入、转换）
-- 🗑️ 删除所有测试脚本，精简项目结构
-- 📊 保留13个核心功能脚本
+- 🗑️ 精简Web界面至2个核心脚本（删除3个冗余脚本）
+- 💾 Web界面新增"导入数据库"按钮
+- 📊 保留10个核心功能脚本
 - ⚡ 161K records/sec 超高性能导入
 - 🔧 统一配置管理 - 所有脚本从`config/clickhouse_config.json`读取配置
 - 🎯 一次配置，全局使用
+- 🌐 Web界面集成4大功能：下载、导入、转换、分析
 
