@@ -1,4 +1,4 @@
-# Documentation Hub
+﻿# Documentation Hub
 
 Welcome to the consolidated documentation for the Forex data toolkit. This index explains what each document covers and points you to the most relevant guides.
 
@@ -14,6 +14,7 @@ Welcome to the consolidated documentation for the Forex data toolkit. This index
 - **Hands-on walkthrough**: `../QUICKSTART.md`
 - **Release notes**: `doc/CHANGELOG.md`
 - **Script catalogue**: `doc/reference/script_catalog.md`
+- **Database schema**: `doc/reference/database_schema.md`
 - **Data pipeline playbook**: `doc/workflows/data_pipeline.md`
 
 ## How the Docs Are Structured
