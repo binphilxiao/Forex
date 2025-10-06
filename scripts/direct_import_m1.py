@@ -5,7 +5,7 @@ Direct M1 Data Import - No User Confirmation Required
 import sys
 from pathlib import Path
 sys.path.insert(0, 'scripts')
-from import_fxcm_to_clickhouse import FXCMDataImporter
+from fxcm_importer import FXCMDataImporter
 import time
 
 print("\n" + "="*80)

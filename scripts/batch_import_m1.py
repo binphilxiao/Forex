@@ -2,7 +2,7 @@
 import sys
 from pathlib import Path
 sys.path.insert(0, 'scripts')
-from import_fxcm_to_clickhouse import FXCMDataImporter
+from fxcm_importer import FXCMDataImporter
 
 print("\n" + "="*80)
 print("          Batch Import M1 Data to ClickHouse")

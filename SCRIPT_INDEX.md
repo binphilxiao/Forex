@@ -1,8 +1,19 @@
 # Python脚本索引
 
-## 📍 快速查找
-
-所有Python脚本已统### 数据工具
+## 📍### 批量导入工具
+| 脚本 | 功能 | 运行方式 |
+|-----|------|------|
+| `batch_import_all.py` | 批量导入所有数据（快速模式 + HTML报告）✨使用v2.0导入器 | `batch_import.bat` 或 `python scripts\batch_import_all.py` |
+| `batch_import_m1.py` | M1数据批量导入 ✨使用v2.0导入器 | `python scripts\batch_import_m1.py` |
+| `direct_import_m1.py` | M1数据直接导入 ✨使用v2.0导入器 | `python scripts\direct_import_m1.py` |
+### 验证工具
+| 脚本 | 功能 | 运行方式 |
+|-----|------|------|
+| `verify_all_data.py` | 数据质量全面验证（A+评分） | `verify_data.bat` 或 `python scripts\verify_all_data.py` |
+| `comprehensive_check.py` | 严格校验导入（详细模式）✨使用v2.0导入器 | `comprehensive_check.bat` 或 `python scripts\comprehensive_check.py` |
+| `verify_data_consistency.py` | **CSV与数据库一致性检查（双模式+HTML报告）** | `verify_consistency.bat` 或 `python scripts\verify_data_consistency.py` |
+| `verify_data_quality.py` | 数据质量验证 | `python scripts\verify_data_quality.py` |
+| `check_data_completeness.py` | 数据完整性检查 | `python scripts\check_data_completeness.py` |on脚本已统### 数据工具
 | 脚本 | 功能 | 运行方式 |
 |-----|------|------|
 | `fxcm_data_downloader.py` | **FXCM数据下载器v2.0** - 命令行参数，灵活配置，自动重试 | `download_fxcm_data.bat` 或 `python scripts\fxcm_data_downloader.py` |
@@ -117,13 +128,12 @@ python scripts\test\test_clickhouse_connection.py
 
 ## 📋 脚本分类统计
 
-- **核心功能脚本**: 19个
+- **核心功能脚本**: 18个
   - 批量导入: 3个
   - 验证工具: 5个
   - 数据库管理: 3个
   - Web界面: 5个
-  - 数据工具: 3个
-  - 核心模块: 1个
+  - 数据工具: 3个 (全部v2.0)
 
 - **测试脚本**: 8个
   - 连接测试: 1个
@@ -135,16 +145,16 @@ python scripts\test\test_clickhouse_connection.py
   - 查询示例: 1个
   - 演示设置: 1个
 
-**总计**: 27个Python脚本
+**总计**: 26个Python脚本
 
 ---
 
 ## 🔍 按功能快速查找
 
 ### 我想...导入数据
-- **快速导入全部（推荐）**: `batch_import.bat` - 自动生成HTML报告
+- **新版导入器v2.0（推荐）**: `import_fxcm_data.bat` - 双验证模式，智能去重，161K records/sec
+- **快速批量导入**: `batch_import.bat` - 自动生成HTML报告
 - **导入M1数据**: `python scripts\batch_import_m1.py`
-- **手动选择导入**: `python scripts\import_fxcm_to_clickhouse.py`
 
 ### 我想...验证数据
 - **快速验证（推荐）**: `verify_data.bat`

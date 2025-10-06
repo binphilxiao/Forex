@@ -24,7 +24,7 @@ if sys.stdout.encoding != 'utf-8':
 
 # 添加scripts目录到路径
 sys.path.insert(0, str(Path(__file__).parent / 'scripts'))
-from import_fxcm_to_clickhouse import FXCMDataImporter
+from fxcm_importer import FXCMDataImporter
 
 
 def print_section(title):

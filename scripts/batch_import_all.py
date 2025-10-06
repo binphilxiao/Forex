@@ -23,7 +23,7 @@ if sys.platform == 'win32':
 
 # 导入自定义的导入器
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'scripts'))
-from import_fxcm_to_clickhouse import FXCMDataImporter
+from fxcm_importer import FXCMDataImporter
 from generate_import_report import generate_html_report
 
 def print_banner():
