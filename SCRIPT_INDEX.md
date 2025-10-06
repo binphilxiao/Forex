@@ -9,11 +9,7 @@
 ### 验证工具
 | 脚本 | 功能 | 运行方式 |
 |-----|------|------|
-| `verify_all_data.py` | 数据质量全面验证（A+评分） | `verify_data.bat` 或 `python scripts\verify_all_data.py` |
-| `comprehensive_check.py` | 严格校验导入（详细模式）✨使用v2.0导入器 | `comprehensive_check.bat` 或 `python scripts\comprehensive_check.py` |
-| `verify_data_consistency.py` | **CSV与数据库一致性检查（双模式+HTML报告）** | `verify_consistency.bat` 或 `python scripts\verify_data_consistency.py` |
-| `verify_data_quality.py` | 数据质量验证 | `python scripts\verify_data_quality.py` |
-| `check_data_completeness.py` | 数据完整性检查 | `python scripts\check_data_completeness.py` |on脚本已统### 数据工具
+| `verify_data_consistency.py` | **CSV与数据库一致性检查（双模式+HTML报告）** | `verify_consistency.bat` 或 `python scripts\verify_data_consistency.py` |on脚本已统### 数据工具
 | 脚本 | 功能 | 运行方式 |
 |-----|------|------|
 | `fxcm_data_downloader.py` | **FXCM数据下载器v2.0** - 命令行参数，灵活配置，自动重试 | `download_fxcm_data.bat` 或 `python scripts\fxcm_data_downloader.py` |
@@ -96,13 +92,10 @@
 # 1. 导入新数据
 batch_import.bat
 
-# 2. 验证数据质量
-verify_data.bat
+# 2. 验证数据一致性
+verify_consistency.bat
 
-# 3. 如有问题，进行详细检查
-comprehensive_check.bat
-
-# 4. 启动Web界面查看数据
+# 3. 启动Web界面查看数据
 start_web_ui.bat
 ```
 
@@ -128,9 +121,9 @@ python scripts\test\test_clickhouse_connection.py
 
 ## 📋 脚本分类统计
 
-- **核心功能脚本**: 18个
+- **核心功能脚本**: 14个
   - 批量导入: 3个
-  - 验证工具: 5个
+  - 验证工具: 1个 (verify_data_consistency.py)
   - 数据库管理: 3个
   - Web界面: 5个
   - 数据工具: 3个 (全部v2.0)
@@ -145,7 +138,7 @@ python scripts\test\test_clickhouse_connection.py
   - 查询示例: 1个
   - 演示设置: 1个
 
-**总计**: 26个Python脚本
+**总计**: 22个Python脚本
 
 ---
 
@@ -157,9 +150,7 @@ python scripts\test\test_clickhouse_connection.py
 - **导入M1数据**: `python scripts\batch_import_m1.py`
 
 ### 我想...验证数据
-- **快速验证（推荐）**: `verify_data.bat`
-- **详细验证**: `comprehensive_check.bat`
-- **完整性检查**: `python scripts\check_data_completeness.py`
+- **数据一致性验证（推荐）**: `verify_consistency.bat` - 双模式，HTML报告
 
 ### 我想...查看数据
 - **Web界面查看**: `start_web_ui.bat` (推荐)

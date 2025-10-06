@@ -146,8 +146,8 @@ class SimpleFXCMWebInterface:
         """检查必要的脚本文件是否存在"""
         required_scripts = {
             'fxcm_data_downloader.py': 'FXCM数据下载器v2.0',
-            'convert_m1_to_multi_timeframes.py': '数据转换脚本',
-            'check_data_completeness.py': '数据分析脚本'
+            'm1_timeframe_converter.py': 'M1时间框架转换器v2.0',
+            'verify_data_consistency.py': '数据一致性验证工具'
         }
         
         missing_scripts = []
@@ -314,7 +314,7 @@ class SimpleFXCMWebInterface:
         
         # 检查脚本文件
         existing_scripts, missing_scripts = self.check_script_files()
-        analysis_script_exists = any(script[0] == 'check_data_completeness.py' for script in existing_scripts)
+        analysis_script_exists = any(script[0] == 'verify_data_consistency.py' for script in existing_scripts)
         
         col1, col2 = st.columns([3, 1])
         
@@ -344,14 +344,14 @@ class SimpleFXCMWebInterface:
             
         # 显示状态信息
         if not analysis_script_exists:
-            st.error("❌ 分析脚本不存在: check_data_completeness.py")
+            st.error("❌ 分析脚本不存在: verify_data_consistency.py")
         elif not has_any_data:
             st.warning("⚠️ 未发现数据文件，请先下载数据")
         elif st.session_state.task_running:
             st.info("🔄 有任务正在运行，请等待完成")
             
         if analyze_btn and can_analyze:
-            self.run_script_command('check_data_completeness.py', '数据分析')
+            self.run_script_command('verify_data_consistency.py', '数据一致性验证')
             st.rerun()
             
         # 显示数据概览

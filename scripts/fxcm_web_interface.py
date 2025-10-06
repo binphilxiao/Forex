@@ -40,8 +40,8 @@ import queue
 # 导入现有模块
 try:
     from fxcm_data_downloader import FXCMDataDownloader
-    from convert_m1_to_multi_timeframes import FXCMMultiTimeframeConverter
-    from check_data_completeness import FXCMDataChecker
+    from m1_timeframe_converter import M1TimeframeConverter
+    from verify_data_consistency import DataConsistencyVerifier
 except ImportError as e:
     st.error(f"导入模块失败: {e}")
     st.stop()
@@ -418,7 +418,7 @@ class FXCMWebInterface:
                 # 使用子进程而不是直接导入，避免Streamlit上下文问题
                 result = subprocess.run([
                     sys.executable, 
-                    'check_data_completeness.py'
+                    'verify_data_consistency.py'
                 ], capture_output=True, text=True, cwd=Path.cwd())
                 
                 if result.returncode == 0:

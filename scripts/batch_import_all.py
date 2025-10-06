@@ -241,7 +241,7 @@ def print_summary(d1_result, m1_result):
     print("💡 提示:")
     print("  • 物化视图会自动生成M5/M15/M30/H1聚合数据")
     print("  • 运行 'python scripts\\view_clickhouse_tables.py' 查看数据库状态")
-    print("  • 运行 'python scripts\\verify_all_data.py' 验证数据质量")
+    print("  • 运行 'python scripts\\verify_data_consistency.py' 验证数据一致性")
     print()
     
     # 生成HTML报告

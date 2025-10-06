@@ -447,7 +447,7 @@ def generate_html_report(d1_result, m1_result):
         <div class="footer">
             <p>FXCM 数据快速导入工具 v4.1.0 | 生成时间: {timestamp}</p>
             <p>模式: 快速检查（仅验证首尾记录）| 速度提升: 10-20倍</p>
-            <p>💡 如需详细验证，请运行: <code>comprehensive_check.bat</code></p>
+            <p>💡 如需详细验证，请运行: <code>verify_consistency.bat</code></p>
         </div>
     </div>
 </body>

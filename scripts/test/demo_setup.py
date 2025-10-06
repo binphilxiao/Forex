@@ -95,8 +95,8 @@ def check_required_files():
     required_files = [
         'fxcm_web_interface.py',
         'fxcm_data_downloader.py',
-        'convert_m1_to_multi_timeframes.py',
-        'check_data_completeness.py'
+        'm1_timeframe_converter.py',
+        'verify_data_consistency.py'
     ]
     
     print("📁 检查必要文件...")

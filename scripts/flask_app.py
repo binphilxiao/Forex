@@ -269,12 +269,12 @@ def start_analysis():
         return jsonify({'success': False, 'message': '已有任务在运行'})
     
     current_task_runner = TaskRunner()
-    script_path = Path(__file__).parent / 'check_data_completeness.py'
-    thread = threading.Thread(target=current_task_runner.run_script, args=(str(script_path), '数据分析'))
+    script_path = Path(__file__).parent / 'verify_data_consistency.py'
+    thread = threading.Thread(target=current_task_runner.run_script, args=(str(script_path), '数据一致性验证'))
     thread.daemon = True
     thread.start()
     
-    return jsonify({'success': True, 'message': '分析任务已启动，请查看终端输出'})
+    return jsonify({'success': True, 'message': '验证任务已启动，请查看终端输出'})
 
 @app.route('/api/status')
 def get_status():
