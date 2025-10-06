@@ -22,6 +22,9 @@ from pathlib import Path
 import logging
 from typing import Optional, List
 
+# Import progress grid module
+from progress_grid import ProgressGrid, ProgressStatus
+
 # Set UTF-8 encoding for Windows console
 if sys.platform == 'win32':
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
@@ -94,6 +97,9 @@ class FXCMDataDownloader:
         
         # Setup logging
         self._setup_logging()
+        
+        # Progress grid for visual feedback
+        self.progress_grid = ProgressGrid("FXCM 数据下载进度")
     
     def _setup_logging(self):
         """Setup logging configuration"""
@@ -289,7 +295,8 @@ class FXCMDataDownloader:
                 year_dir = pair_dir / str(year)
                 year_dir.mkdir(parents=True, exist_ok=True)
                 
-                self.logger.info(f"\n📥 Downloading {pair} {year} M1 data...")
+                # Initialize progress grid for this year
+                self.progress_grid.initialize_grid(pair, timeframe, year, 52)
                 
                 for week in range(1, 53):
                     self.stats['total_files'] += 1
@@ -297,14 +304,66 @@ class FXCMDataDownloader:
                     # Check if file exists
                     filename = year_dir / f"week_{week:02d}.csv"
                     if filename.exists():
-                        self.logger.info(f"  Week {week:02d}/52... ⏭️  Already exists, skipped")
+                        self.logger.debug(f"  Week {week:02d}/52... ⏭️  Already exists, skipped")
                         stats['skipped'] += 1
                         self.stats['skipped'] += 1
-                        continue
+                        # Update progress grid - skipped
+                        self.progress_grid.update_status(pair, timeframe, year, week - 1, ProgressStatus.SKIPPED)
+                    else:
+                        # Download data
+                        self.logger.debug(f"  Week {week:02d}/52...")
+                        df = self.download_m1_week(pair, year, week)
+                        
+                        if df is not None and not df.empty:
+                            # Save to CSV
+                            df.to_csv(filename, index=False)
+                            records = len(df)
+                            stats['downloaded'] += 1
+                            stats['records'] += records
+                            self.stats['downloaded'] += 1
+                            self.stats['total_records'] += records
+                            self.logger.debug(f"    ✅ {records} records -> {filename.name}")
+                            # Update progress grid - success
+                            self.progress_grid.update_status(pair, timeframe, year, week - 1, ProgressStatus.SUCCESS)
+                        else:
+                            stats['failed'] += 1
+                            self.stats['failed'] += 1
+                            self.logger.debug(f"    ⏭️  No data available")
+                            # Update progress grid - error
+                            self.progress_grid.update_status(pair, timeframe, year, week - 1, ProgressStatus.ERROR)
+                        
+                        time.sleep(0.1)  # Rate limiting
                     
+                    # Display progress line
+                    self.progress_grid.display_line(pair, timeframe, year)
+                
+                # Newline after year
+                self.progress_grid.newline()
+        
+        elif timeframe == 'D1':
+            # D1: Download by year
+            pair_dir.mkdir(parents=True, exist_ok=True)
+            
+            years_list = list(range(start_year, end_year + 1))
+            # Initialize progress grid for D1 years
+            self.progress_grid.initialize_grid(pair, timeframe, 0, len(years_list))
+            year_index = 0
+            
+            for year in years_list:
+                self.stats['total_files'] += 1
+                
+                # Check if file exists
+                filename = pair_dir / f"{year}.csv"
+                if filename.exists():
+                    self.logger.debug(f"\n📥 Downloading {pair} {year} D1 data... ⏭️  Already exists, skipped")
+                    stats['skipped'] += 1
+                    self.stats['skipped'] += 1
+                    # Update progress grid - skipped
+                    self.progress_grid.update_status(pair, timeframe, 0, year_index, ProgressStatus.SKIPPED)
+                else:
                     # Download data
-                    self.logger.info(f"  Week {week:02d}/52...", )
-                    df = self.download_m1_week(pair, year, week)
+                    self.logger.debug(f"\n📥 Downloading {pair} {year} D1 data...")
+                    df = self.download_d1_year(pair, year)
                     
                     if df is not None and not df.empty:
                         # Save to CSV
@@ -314,48 +373,24 @@ class FXCMDataDownloader:
                         stats['records'] += records
                         self.stats['downloaded'] += 1
                         self.stats['total_records'] += records
-                        self.logger.info(f"    ✅ {records} records -> {filename.name}")
+                        self.logger.debug(f"  ✅ {records} records -> {filename.name}")
+                        # Update progress grid - success
+                        self.progress_grid.update_status(pair, timeframe, 0, year_index, ProgressStatus.SUCCESS)
                     else:
                         stats['failed'] += 1
                         self.stats['failed'] += 1
-                        self.logger.info(f"    ⏭️  No data available")
+                        self.logger.debug(f"  ⏭️  No data available")
+                        # Update progress grid - error
+                        self.progress_grid.update_status(pair, timeframe, 0, year_index, ProgressStatus.ERROR)
                     
                     time.sleep(0.1)  # Rate limiting
-        
-        elif timeframe == 'D1':
-            # D1: Download by year
-            pair_dir.mkdir(parents=True, exist_ok=True)
+                
+                # Display progress line
+                self.progress_grid.display_line(pair, timeframe, 0, f"{pair} {timeframe}")
+                year_index += 1
             
-            for year in range(start_year, end_year + 1):
-                self.stats['total_files'] += 1
-                
-                # Check if file exists
-                filename = pair_dir / f"{year}.csv"
-                if filename.exists():
-                    self.logger.info(f"\n📥 Downloading {pair} {year} D1 data... ⏭️  Already exists, skipped")
-                    stats['skipped'] += 1
-                    self.stats['skipped'] += 1
-                    continue
-                
-                # Download data
-                self.logger.info(f"\n📥 Downloading {pair} {year} D1 data...")
-                df = self.download_d1_year(pair, year)
-                
-                if df is not None and not df.empty:
-                    # Save to CSV
-                    df.to_csv(filename, index=False)
-                    records = len(df)
-                    stats['downloaded'] += 1
-                    stats['records'] += records
-                    self.stats['downloaded'] += 1
-                    self.stats['total_records'] += records
-                    self.logger.info(f"  ✅ {records} records -> {filename.name}")
-                else:
-                    stats['failed'] += 1
-                    self.stats['failed'] += 1
-                    self.logger.info(f"  ⏭️  No data available")
-                
-                time.sleep(0.1)  # Rate limiting
+            # Newline after all years
+            self.progress_grid.newline()
         
         return stats
     
@@ -413,6 +448,10 @@ class FXCMDataDownloader:
         
         # Calculate elapsed time
         elapsed = time.time() - start_time
+        
+        # Display progress grid summary and legend
+        self.progress_grid.print_legend()
+        self.progress_grid.print_summary()
         
         # Print summary
         self._print_summary(elapsed)

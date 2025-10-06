@@ -29,6 +29,9 @@ import argparse
 from collections import defaultdict
 import time
 
+# Import progress grid module
+from progress_grid import ProgressGrid, ProgressStatus
+
 # Fix Windows console UTF-8 encoding
 if sys.platform == 'win32':
     import codecs
@@ -82,6 +85,9 @@ class DataConsistencyChecker:
             'consistent': 0,
             'errors': 0
         }
+        
+        # Progress grid for visual feedback
+        self.progress_grid = ProgressGrid("数据一致性验证进度")
         
     def _load_config(self, config_path):
         """Load ClickHouse configuration from JSON file."""
@@ -407,25 +413,70 @@ class DataConsistencyChecker:
                             continue
                         
                         csv_files = sorted(year_path.glob('week_*.csv'))
+                        if csv_files:
+                            # Initialize progress grid for this year
+                            self.progress_grid.initialize_grid(symbol, timeframe, year, 52)
+                            
                         for csv_file in csv_files:
                             total_files += 1
                             result = self.verify_file(csv_file, symbol, timeframe)
                             self.results.append(result)
                             self._update_stats(result['status'])
-                            self._print_file_status(result)
+                            
+                            # Update progress grid
+                            week = result['week']
+                            status_map = {
+                                self.STATUS_CONSISTENT: ProgressStatus.SUCCESS,
+                                self.STATUS_INCONSISTENT: ProgressStatus.WARNING,
+                                self.STATUS_NO_DATA: ProgressStatus.ERROR
+                            }
+                            self.progress_grid.update_status(symbol, timeframe, year, week - 1, status_map[result['status']])
+                            self.progress_grid.display_line(symbol, timeframe, year)
+                        
+                        # Newline after each year
+                        if csv_files:
+                            self.progress_grid.newline()
                 
                 else:  # D1
                     # D1 data organized by year files
+                    years_list = []
                     for year in range(start_year, end_year + 1):
                         csv_file = tf_path / f"{year}.csv"
                         if csv_file.exists():
-                            total_files += 1
-                            result = self.verify_file(csv_file, symbol, timeframe)
-                            self.results.append(result)
-                            self._update_stats(result['status'])
-                            self._print_file_status(result)
+                            years_list.append(year)
+                    
+                    if years_list:
+                        # Initialize progress grid for D1 years
+                        self.progress_grid.initialize_grid(symbol, timeframe, 0, len(years_list))
+                        year_index = 0
+                        
+                        for year in range(start_year, end_year + 1):
+                            csv_file = tf_path / f"{year}.csv"
+                            if csv_file.exists():
+                                total_files += 1
+                                result = self.verify_file(csv_file, symbol, timeframe)
+                                self.results.append(result)
+                                self._update_stats(result['status'])
+                                
+                                # Update progress grid
+                                status_map = {
+                                    self.STATUS_CONSISTENT: ProgressStatus.SUCCESS,
+                                    self.STATUS_INCONSISTENT: ProgressStatus.WARNING,
+                                    self.STATUS_NO_DATA: ProgressStatus.ERROR
+                                }
+                                self.progress_grid.update_status(symbol, timeframe, 0, year_index, status_map[result['status']])
+                                self.progress_grid.display_line(symbol, timeframe, 0, f"{symbol} {timeframe}")
+                                year_index += 1
+                        
+                        # Newline after all D1 years
+                        self.progress_grid.newline()
         
         self.stats['total_files'] = total_files
+        
+        # Display progress grid summary and legend
+        self.progress_grid.print_legend()
+        self.progress_grid.print_summary()
+        
         self._print_summary()
         
         return self.results

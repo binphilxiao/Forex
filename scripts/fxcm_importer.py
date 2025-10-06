@@ -18,6 +18,9 @@ import json
 from datetime import datetime
 from typing import List, Optional, Dict, Tuple
 
+# Import progress grid module
+from progress_grid import ProgressGrid, ProgressStatus
+
 # Conditional import of ClickHouse
 try:
     import clickhouse_connect
@@ -124,6 +127,9 @@ class FXCMDataImporter:
         
         # Setup logging
         self._setup_logging()
+        
+        # Progress grid for visual feedback
+        self.progress_grid = ProgressGrid("FXCM 数据导入进度")
         
     def _setup_logging(self):
         """Setup logging configuration"""
@@ -381,7 +387,7 @@ class FXCMDataImporter:
         Returns:
             (records_imported, records_skipped)
         """
-        self.logger.info(f"  📄 Processing: {file_path.name}")
+        self.logger.debug(f"  📄 Processing: {file_path.name}")
         
         # Read CSV
         df = self._read_csv_file(file_path, timeframe)
@@ -395,14 +401,14 @@ class FXCMDataImporter:
         if check_mode == 'fast':
             # Fast mode: check first/last only
             if self._validate_fast(df, pair, timeframe):
-                self.logger.info(f"    ⏭️  Skipped: File exists in DB ({records_total:,} records)")
+                self.logger.debug(f"    ⏭️  Skipped: File exists in DB ({records_total:,} records)")
                 self.stats['skipped_files'] += 1
                 self.stats['records_skipped'] += records_total
                 return (0, records_total)
             else:
                 # Import entire file
                 records_imported = self._insert_batch(df, pair, timeframe)
-                self.logger.info(f"    ✅ Imported: {records_imported:,} records")
+                self.logger.debug(f"    ✅ Imported: {records_imported:,} records")
                 self.stats['records_imported'] += records_imported
                 return (records_imported, 0)
                 
@@ -414,13 +420,13 @@ class FXCMDataImporter:
             
             if records_new > 0:
                 records_imported = self._insert_batch(new_df, pair, timeframe)
-                self.logger.info(f"    ✅ Imported: {records_imported:,} new/modified")
-                self.logger.info(f"    ⏭️  Skipped: {records_skipped:,} existing")
+                self.logger.debug(f"    ✅ Imported: {records_imported:,} new/modified")
+                self.logger.debug(f"    ⏭️  Skipped: {records_skipped:,} existing")
                 self.stats['records_imported'] += records_imported
                 self.stats['records_skipped'] += records_skipped
                 return (records_imported, records_skipped)
             else:
-                self.logger.info(f"    ⏭️  Skipped: All {records_total:,} records exist in DB")
+                self.logger.debug(f"    ⏭️  Skipped: All {records_total:,} records exist in DB")
                 self.stats['skipped_files'] += 1
                 self.stats['records_skipped'] += records_total
                 return (0, records_total)
@@ -456,34 +462,77 @@ class FXCMDataImporter:
         try:
             # Process each combination
             for pair in pairs:
-                self.logger.info(f"\n{'='*60}")
-                self.logger.info(f"Processing: {pair}")
-                self.logger.info(f"{'='*60}")
-                
                 for timeframe in timeframes:
-                    self.logger.info(f"\n⏱️  Timeframe: {timeframe}")
-                    
                     for year in range(start_year, end_year + 1):
-                        self.logger.info(f"\n📅 Year: {year}")
-                        
                         # Get CSV files
                         files = self._get_csv_files(pair, timeframe, year)
                         
                         if not files:
-                            self.logger.warning(f"  ⚠️  No files found for {pair} {timeframe} {year}")
+                            self.logger.debug(f"  ⚠️  No files found for {pair} {timeframe} {year}")
                             continue
                             
                         self.stats['total_files'] += len(files)
-                        self.logger.info(f"  📊 Found {len(files)} files")
                         
-                        # Process each file
-                        for file_path in files:
-                            self._process_file(file_path, pair, timeframe, check_mode)
-                            self.stats['processed_files'] += 1
+                        if timeframe == 'M1':
+                            # Initialize progress grid for M1 (52 weeks)
+                            self.progress_grid.initialize_grid(pair, timeframe, year, 52)
+                            
+                            # Process each file
+                            for file_path in files:
+                                # Extract week number from filename (week_01.csv -> 1)
+                                week = int(file_path.stem.split('_')[1])
+                                imported, skipped = self._process_file(file_path, pair, timeframe, check_mode)
+                                self.stats['processed_files'] += 1
+                                
+                                # Update progress grid
+                                if imported > 0:
+                                    status = ProgressStatus.SUCCESS
+                                elif skipped > 0:
+                                    status = ProgressStatus.SKIPPED
+                                else:
+                                    status = ProgressStatus.ERROR
+                                
+                                self.progress_grid.update_status(pair, timeframe, year, week - 1, status)
+                                self.progress_grid.display_line(pair, timeframe, year)
+                            
+                            self.progress_grid.newline()
+                        else:
+                            # D1: only one file per year
+                            # Initialize progress grid for D1
+                            years_list = list(range(start_year, end_year + 1))
+                            if not hasattr(self, f'_d1_initialized_{pair}'):
+                                self.progress_grid.initialize_grid(pair, timeframe, 0, len(years_list))
+                                self._year_index_map = {y: idx for idx, y in enumerate(years_list)}
+                                setattr(self, f'_d1_initialized_{pair}', True)
+                            
+                            for file_path in files:
+                                imported, skipped = self._process_file(file_path, pair, timeframe, check_mode)
+                                self.stats['processed_files'] += 1
+                                
+                                # Update progress grid
+                                if imported > 0:
+                                    status = ProgressStatus.SUCCESS
+                                elif skipped > 0:
+                                    status = ProgressStatus.SKIPPED
+                                else:
+                                    status = ProgressStatus.ERROR
+                                
+                                year_idx = self._year_index_map.get(year, 0)
+                                self.progress_grid.update_status(pair, timeframe, 0, year_idx, status)
+                                self.progress_grid.display_line(pair, timeframe, 0, f"{pair} {timeframe}")
+                            
+                            # Only newline at the end of all D1 years
+                            if year == end_year:
+                                self.progress_grid.newline()
                             
             # Generate report
             self.stats['end_time'] = datetime.now()
             self.stats['processing_time'] = (self.stats['end_time'] - self.stats['start_time']).total_seconds()
+            
+            # Display progress grid summary and legend
+            self.progress_grid.print_legend()
+            self.progress_grid.print_summary()
+            
             self._generate_report()
             
             return True

@@ -40,6 +40,9 @@ import numpy as np
 from collections import defaultdict
 import json
 
+# Import progress grid module
+from progress_grid import ProgressGrid, ProgressStatus
+
 # 设置标准输出编码为UTF-8，避免Windows控制台编码问题
 if sys.platform == 'win32':
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
@@ -76,6 +79,9 @@ class FXCMMultiTimeframeConverter:
             'by_instrument': {},
             'processing_time': 0
         }
+        
+        # Progress grid for visual feedback
+        self.progress_grid = ProgressGrid("M1 多时间周期转换进度")
     
     def setup_logging(self):
         """设置日志系统"""
@@ -183,16 +189,16 @@ class FXCMMultiTimeframeConverter:
         try:
             # 检查输出文件是否已存在
             if output_file_path.exists():
-                self.logger.info(f"  ⏭️ {timeframe_name}文件已存在，跳过: {output_file_path.name}")
+                self.logger.debug(f"  ⏭️ {timeframe_name}文件已存在，跳过: {output_file_path.name}")
                 self.stats['total_skipped_files'] += 1
-                return True
+                return ('skipped', None)
             
             # 读取M1数据
             df_m1 = pd.read_csv(m1_file_path)
             
             if df_m1.empty:
                 self.logger.warning(f"  ⚠️ M1文件为空: {m1_file_path.name}")
-                return False
+                return ('error', None)
             
             # 验证必需的OHLC列
             required_columns = ['DateTime', 'Open', 'High', 'Low', 'Close']
@@ -200,7 +206,7 @@ class FXCMMultiTimeframeConverter:
             
             if missing_columns:
                 self.logger.error(f"  ❌ M1文件缺少必需列 {missing_columns}: {m1_file_path.name}")
-                return False
+                return ('error', None)
             
             # 转换为指定时间周期数据
             df_aggregated = self.aggregate_to_timeframe(df_m1, timeframe_minutes)
@@ -208,7 +214,7 @@ class FXCMMultiTimeframeConverter:
             
             if df_aggregated.empty:
                 self.logger.warning(f"  ⚠️ {timeframe_name}聚合数据为空: {m1_file_path.name}")
-                return False
+                return ('error', None)
             
             # 确保输出目录存在
             output_file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -223,20 +229,18 @@ class FXCMMultiTimeframeConverter:
             
             compression_ratio = initial_rows / len(df_aggregated) if len(df_aggregated) > 0 else 0
             
-            self.logger.info(f"  ✅ 转换完成: {m1_file_path.name} -> {output_file_path.name}")
-            self.logger.info(f"      📊 数据行数: {initial_rows:,} -> {len(df_aggregated):,} (压缩比: {compression_ratio:.1f}:1)")
+            self.logger.debug(f"  ✅ 转换完成: {m1_file_path.name} -> {output_file_path.name}")
+            self.logger.debug(f"      📊 数据行数: {initial_rows:,} -> {len(df_aggregated):,} (压缩比: {compression_ratio:.1f}:1)")
             
-            return True
+            return ('success', len(df_aggregated))
             
         except Exception as e:
             self.logger.error(f"  ❌ 处理文件失败 {m1_file_path.name}: {e}")
             self.stats['processing_errors'] += 1
-            return False
+            return ('error', None)
     
     def process_year(self, instrument, year):
         """处理单个货币对的某一年数据，生成所有时间周期"""
-        self.logger.info(f"\n🔄 处理 {instrument} {year}年数据...")
-        
         # M1输入路径
         m1_year_dir = self.base_path / instrument / 'M1' / str(year)
         
@@ -254,18 +258,33 @@ class FXCMMultiTimeframeConverter:
         
         # 为每个时间周期处理文件
         for timeframe_name, config in self.timeframes.items():
-            self.logger.info(f"\n  📈 生成{timeframe_name}数据...")
-            
             output_year_dir = self.base_path / instrument / config['folder'] / str(year)
             
+            # Initialize progress grid for this timeframe/year
+            self.progress_grid.initialize_grid(instrument, timeframe_name, year, len(m1_files))
+            
             # 处理每个M1文件
+            file_index = 0
             for m1_file in m1_files:
                 output_file = output_year_dir / m1_file.name
-                self.process_m1_file(m1_file, output_file, timeframe_name, config['minutes'])
+                status_str, output_rows = self.process_m1_file(m1_file, output_file, timeframe_name, config['minutes'])
+                
+                # Update progress grid
+                status_map = {
+                    'success': ProgressStatus.SUCCESS,
+                    'skipped': ProgressStatus.SKIPPED,
+                    'error': ProgressStatus.ERROR
+                }
+                self.progress_grid.update_status(instrument, timeframe_name, year, file_index, status_map[status_str])
+                self.progress_grid.display_line(instrument, timeframe_name, year, f"{instrument} {timeframe_name} {year}")
+                file_index += 1
+            
+            # Newline after each timeframe
+            self.progress_grid.newline()
     
     def process_instrument(self, instrument):
         """处理单个货币对的所有年份数据"""
-        self.logger.info(f"\n🏦 开始处理货币对: {instrument}")
+        self.logger.debug(f"\n🏦 开始处理货币对: {instrument}")
         
         # 检查该货币对是否有M1数据
         instrument_m1_dir = self.base_path / instrument / 'M1'
@@ -545,18 +564,20 @@ class FXCMMultiTimeframeConverter:
         with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(json_data, f, indent=2, ensure_ascii=False)
         
-        self.logger.info(f"转换报告已生成:")
-        self.logger.info(f"  HTML: {html_file.absolute()}")
-        self.logger.info(f"  JSON: {json_file.absolute()}")
+        self.logger.debug(f"转换报告已生成:")
+        self.logger.debug(f"  HTML: {html_file.absolute()}")
+        self.logger.debug(f"  JSON: {json_file.absolute()}")
         
         return html_file, json_file
     
     def process_all(self):
         """处理所有货币对的M1多时间周期转换"""
-        self.logger.info("\n" + "="*50)
-        self.logger.info("� 开始FXCM M1多时间周期数据转换")
-        self.logger.info("支持的时间周期: " + ", ".join(self.timeframes.keys()))
-        self.logger.info("="*50)
+        self.logger.debug("\n" + "="*50)
+        self.logger.debug("� 开始FXCM M1多时间周期数据转换")
+        self.logger.debug("支持的时间周期: " + ", ".join(self.timeframes.keys()))
+        self.logger.debug("="*50)
+        
+        print("\n🔄 FXCM M1多时间周期转换\n")
         
         # 检查数据目录
         if not self.base_path.exists():
@@ -573,22 +594,31 @@ class FXCMMultiTimeframeConverter:
             for instrument in self.instruments:
                 self.process_instrument(instrument)
             
-            self.logger.info("\n" + "="*50)
-            self.logger.info("✅ M1多时间周期转换完成!")
-            self.logger.info(f"📊 处理统计:")
-            self.logger.info(f"   - 处理文件数: {self.stats['total_processed_files']:,}")
-            self.logger.info(f"   - 跳过文件数: {self.stats['total_skipped_files']:,}")
-            self.logger.info(f"   - 输入数据行: {self.stats['total_input_rows']:,}")
-            self.logger.info(f"   - 输出数据行: {self.stats['total_output_rows']:,}")
-            
-            if self.stats['total_input_rows'] > 0:
-                overall_compression = self.stats['total_input_rows'] / self.stats['total_output_rows']
-                self.logger.info(f"   - 总体压缩比: {overall_compression:.1f}:1")
+            # Display progress grid summary and legend
+            self.progress_grid.print_legend()
+            self.progress_grid.print_summary()
             
             # 计算处理时间
             processing_time = time.time() - start_time
-            self.logger.info(f"⏱️ 总处理时间: {processing_time:.2f} 秒")
-            self.logger.info("="*50)
+            
+            # 终端显示简洁信息
+            print(f"\n\u2705 转换完成! 总耗时: {processing_time:.1f}秒\n")
+            
+            # 详细统计信息记录到日志文件
+            self.logger.debug("\n" + "="*50)
+            self.logger.debug("✅ M1多时间周期转换完成!")
+            self.logger.debug(f"📊 处理统计:")
+            self.logger.debug(f"   - 处理文件数: {self.stats['total_processed_files']:,}")
+            self.logger.debug(f"   - 跳过文件数: {self.stats['total_skipped_files']:,}")
+            self.logger.debug(f"   - 输入数据行: {self.stats['total_input_rows']:,}")
+            self.logger.debug(f"   - 输出数据行: {self.stats['total_output_rows']:,}")
+            
+            if self.stats['total_input_rows'] > 0:
+                overall_compression = self.stats['total_input_rows'] / self.stats['total_output_rows']
+                self.logger.debug(f"   - 总体压缩比: {overall_compression:.1f}:1")
+            
+            self.logger.debug(f"⏱️ 总处理时间: {processing_time:.2f} 秒")
+            self.logger.debug("="*50)
             
         except Exception as e:
             self.logger.error(f"转换过程中发生错误: {e}")
