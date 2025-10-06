@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [5.1.3] - 2025-10-06
+
+### Added
+- Added `scripts/setup_clickhouse_materialized_views.py` to bootstrap ClickHouse materialized views for automatic timeframe aggregation.
+
+### Documentation
+- Published `doc/guides/ClickHouse自动聚合设置指南.md` covering prerequisites, setup, and validation for automatic aggregation.
+
+---
+
 ## [5.1.2] - 2025-10-06
 
 ### Documentation
