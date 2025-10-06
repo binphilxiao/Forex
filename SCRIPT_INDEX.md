@@ -52,7 +52,7 @@
 download_fxcm_data.bat
 
 # 2. 导入数据
-batch_import.bat
+python scripts\fxcm_importer.py
 
 # 3. 验证数据一致性
 verify_consistency.bat
@@ -112,10 +112,6 @@ python scripts\m1_timeframe_converter.py --pairs EURUSD --timeframes M5 M15
   - 跳过已存在文件
 
 ### 我想...导入数据
-- **批量导入（推荐）**: `batch_import.bat`
-  - 使用v2.0高性能导入器
-  - 双验证模式（快速/全面）
-  - 智能去重，161K records/sec
 - **手动导入**: `python scripts\fxcm_importer.py`
   - 支持自定义参数
   - 可选择货币对、时间框架、年份范围
@@ -178,7 +174,6 @@ python scripts\m1_timeframe_converter.py --pairs EURUSD --timeframes M5 M15
 |-----------|---------|------|
 | `download_fxcm_data.bat` | fxcm_data_downloader.py | 下载FXCM数据 |
 | `import_fxcm_data.bat` | fxcm_importer.py | 导入数据（推荐） |
-| `batch_import.bat` | fxcm_importer.py | 批量导入（快捷方式） |
 | `convert_m1_to_multi_timeframes.bat` | m1_timeframe_converter.py | 转换M1时间框架 |
 | `verify_consistency.bat` | verify_data_consistency.py | 验证数据一致性 |
 | `start_web_ui.bat` | start_web.py | 启动Web界面 |

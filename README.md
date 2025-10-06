@@ -98,7 +98,6 @@ python scripts\verify_data_consistency.py # 自动读取配置
 Windows用户可直接双击运行：
 
 ```
-batch_import.bat        # 快速导入所有数据
 verify_consistency.bat  # 数据一致性验证
 start_web_ui.bat       # 启动Web界面
 ```
@@ -202,7 +201,6 @@ Web界面支持：
 ```
 Forex/
 ├── 📄 启动器（根目录）
-│   ├── batch_import.bat            # 批量导入
 │   ├── start_web_ui.bat           # Web界面
 │   └── README.md                   # 本文档
 │
@@ -340,13 +338,10 @@ python scripts\create_clickhouse_tables.py
 ### 6. 开始使用
 
 ```powershell
-# 方式一：批处理启动器
-batch_import.bat
+# 方式一：Python脚本（推荐）
+python scripts\fxcm_importer.py
 
-# 方式二：Python脚本
-python scripts\batch_import_all.py
-
-# 方式三：Web界面
+# 方式二：Web界面
 start_web_ui.bat
 ```
 
@@ -853,7 +848,6 @@ FXCM 历史数据下载器
 
 #### 🎯 用户体验优化
 - **便捷启动器** - 根目录批处理文件
-  - `batch_import.bat` - 一键批量导入
   - `start_web_ui.bat` - 一键启动Web界面
 
 - **智能模式切换**
