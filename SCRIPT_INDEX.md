@@ -16,7 +16,7 @@
 ### 数据库管理
 | 脚本 | 功能 | 运行方式 |
 |-----|------|---------|
-| `clickhouse_configurator.py` | **数据库配置工具** - 交互式配置数据库连接，自动测试连接 | `configure_database.bat` 或 `python scripts\clickhouse_configurator.py` |
+| `clickhouse_configurator.py` | **数据库配置工具** - 交互式配置数据库连接，自动测试连接，保存到config/ | `python scripts\clickhouse_configurator.py` |
 | `create_clickhouse_tables.py` | 创建数据库表 | `python scripts\create_clickhouse_tables.py` |
 | `rebuild_clickhouse_tables.py` | 重建数据库表（删除并重建） | `python scripts\rebuild_clickhouse_tables.py` |
 | `view_clickhouse_tables.py` | 查看数据库表信息 | `python scripts\view_clickhouse_tables.py` |
@@ -165,7 +165,7 @@ python scripts\m1_timeframe_converter.py --pairs EURUSD --timeframes M5 M15
   - 表结构查看
 
 ### 我想...管理数据库
-- **配置数据库连接**: `configure_database.bat` ⭐ - 交互式配置，自动测试
+- **配置数据库连接**: `python scripts\clickhouse_configurator.py` ⭐ - 交互式配置，保存到config/
 - **创建表**: `python scripts\create_clickhouse_tables.py`
 - **重建表**: `python scripts\rebuild_clickhouse_tables.py`
 - **测试连接**: `python scripts\test\test_clickhouse_connection.py`
@@ -205,8 +205,8 @@ python scripts\m1_timeframe_converter.py --pairs EURUSD --timeframes M5 M15
 
 | 批处理文件 | 对应脚本 | 功能 |
 |-----------|---------|------|
-| `configure_database.bat` | clickhouse_configurator.py | **配置数据库连接** ⭐ |
 | `download_fxcm_data.bat` | fxcm_data_downloader.py | 下载FXCM数据 |
+| `import_fxcm_data.bat` | fxcm_importer.py | 导入数据（推荐） |
 | `import_fxcm_data.bat` | fxcm_importer.py | 导入数据（推荐） |
 | `batch_import.bat` | fxcm_importer.py | 批量导入（快捷方式） |
 | `convert_m1_to_multi_timeframes.bat` | m1_timeframe_converter.py | 转换M1时间框架 |

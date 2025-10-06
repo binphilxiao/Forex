@@ -439,7 +439,7 @@ Example:
 ## 5. File Structure
 
 ### 5.1 Configuration File
-**Path**: `clickhouse_config.json` (default)  
+**Path**: `config/clickhouse_config.json` (default)  
 **Format**: JSON  
 **Encoding**: UTF-8  
 **Permissions**: User-readable (contains password)

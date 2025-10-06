@@ -8,7 +8,7 @@ Features:
 - Validation of connection parameters
 - Automatic connection testing
 - Secure password handling
-- JSON configuration file generation
+- JSON configuration file generation (saved to config/ directory)
 - Detailed logging to logs/ folder
 
 Author: Forex Data Management System
@@ -23,6 +23,14 @@ import argparse
 from datetime import datetime
 from getpass import getpass
 from pathlib import Path
+
+# Set UTF-8 encoding for Windows console
+if sys.platform == 'win32':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except:
+        pass
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
@@ -53,7 +61,7 @@ class ClickHouseConfigurator:
         'database': 'forex'
     }
     
-    def __init__(self, config_file='clickhouse_config.json', log_dir='logs'):
+    def __init__(self, config_file='config/clickhouse_config.json', log_dir='logs'):
         """
         Initialize the configurator.
         
@@ -62,7 +70,11 @@ class ClickHouseConfigurator:
             log_dir (str): Directory for log files
         """
         self.config_file = config_file
+        self.config_dir = Path(config_file).parent
         self.log_dir = Path(log_dir)
+        
+        # Create directories if they don't exist
+        self.config_dir.mkdir(exist_ok=True)
         self.log_dir.mkdir(exist_ok=True)
         
         # Setup logging
@@ -442,8 +454,8 @@ Examples:
         """
     )
     
-    parser.add_argument('--config', type=str, default='clickhouse_config.json',
-                        help='Configuration file path (default: clickhouse_config.json)')
+    parser.add_argument('--config', type=str, default='config/clickhouse_config.json',
+                        help='Configuration file path (default: config/clickhouse_config.json)')
     parser.add_argument('--no-test', action='store_true',
                         help='Skip connection testing after configuration')
     parser.add_argument('--test-only', action='store_true',

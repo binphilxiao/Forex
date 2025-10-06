@@ -220,7 +220,7 @@ python clickhouse_configurator.py [OPTIONS]
 ## 6. Configuration File
 
 ### 6.1 File Format
-The configuration is saved as JSON in `clickhouse_config.json`:
+The configuration is saved as JSON in `config/clickhouse_config.json`:
 ```json
 {
     "host": "localhost",

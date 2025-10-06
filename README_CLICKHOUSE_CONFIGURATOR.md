@@ -40,11 +40,6 @@ Run the interactive configuration wizard:
 python scripts/clickhouse_configurator.py
 ```
 
-Or use the convenient batch file:
-```bash
-configure_database.bat
-```
-
 Follow the prompts to configure your database connection:
 ```
 ============================================================
@@ -60,7 +55,7 @@ Enter database name [forex]: forex
 ✅ Configuration saved and tested successfully!
 ```
 
-That's it! Your configuration is saved to `clickhouse_config.json` and ready to use.
+That's it! Your configuration is saved to `config/clickhouse_config.json` and ready to use.
 
 ---
 
@@ -136,9 +131,9 @@ python clickhouse_configurator.py [OPTIONS]
 
 ## 📁 Configuration File
 
-The tool creates a JSON configuration file with your database settings:
+The tool creates a JSON configuration file in the config directory:
 
-**File**: `clickhouse_config.json`
+**File**: `config/clickhouse_config.json`
 
 ```json
 {
@@ -212,7 +207,7 @@ python scripts/test/test_clickhouse_configurator.py
 1. **Restrict file permissions**:
    ```bash
    # Linux/macOS
-   chmod 600 clickhouse_config.json
+   chmod 600 config/clickhouse_config.json
    
    # Windows: Properties → Security → Edit
    ```
@@ -220,7 +215,7 @@ python scripts/test/test_clickhouse_configurator.py
 2. **Don't commit to version control**:
    ```bash
    # Add to .gitignore
-   echo "clickhouse_config.json" >> .gitignore
+   echo "config/clickhouse_config.json" >> .gitignore
    echo "logs/*.log" >> .gitignore
    ```
 
@@ -310,9 +305,11 @@ result = client.query("SELECT * FROM forex_data LIMIT 10")
 ### Integration with Forex System
 
 The configuration file is automatically used by:
-- `batch_import.bat` - Data import tool
-- `verify_consistency.bat` - Data verification tool
+- Data import tools
+- Data verification tools
 - All other Forex Data Management System tools
+
+**Note**: Make sure other scripts look for config in `config/clickhouse_config.json`
 
 ---
 
@@ -340,6 +337,8 @@ This tool **replaces** the old `view_clickhouse_tables.py` script with improved 
 │   ├── clickhouse_configurator.py          # Main tool
 │   └── test/
 │       └── test_clickhouse_configurator.py # Unit tests
+├── config/
+│   └── clickhouse_config.json              # Configuration (auto-created)
 ├── doc/
 │   ├── requirement/
 │   │   └── clickhouse_configurator_requirements.md
@@ -349,8 +348,6 @@ This tool **replaces** the old `view_clickhouse_tables.py` script with improved 
 │       └── clickhouse_configurator_manual.md
 ├── logs/
 │   └── clickhouse_config_*.log             # Log files (auto-created)
-├── clickhouse_config.json                   # Configuration (auto-created)
-├── configure_database.bat                   # Windows launcher
 └── README_CLICKHOUSE_CONFIGURATOR.md        # This file
 ```
 
@@ -429,7 +426,7 @@ When reporting issues, please include:
 $ python scripts/clickhouse_configurator.py
 # Interactive wizard guides you through configuration
 # Tests connection automatically
-# Creates clickhouse_config.json
+# Creates config/clickhouse_config.json
 ```
 
 ### Example 2: Update Password
@@ -455,9 +452,3 @@ $ python scripts/clickhouse_configurator.py --config /etc/forex/prod.json
 # Keeps production settings separate
 # Can be version controlled (without passwords)
 ```
-
----
-
-**Made with ❤️ for the Forex Data Management System**
-
-**Version**: 1.0.0 | **Date**: 2025-10-06 | **Status**: ✅ Production Ready
