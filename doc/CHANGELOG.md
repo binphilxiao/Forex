@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [5.1.0] - 2025-10-06
+
+### Added
+- Documentation hub (`doc/README.md`) with a cleaned table of contents.
+- New reference set: `doc/overview/`, `doc/workflows/`, `doc/reference/`, and `doc/operations/`.
+
+### Changed
+- Rewrote `README.md` and `QUICKSTART.md` to deliver a concise, accurate pipeline walkthrough.
+- Replaced corrupted legacy manuals with lean Markdown written in UTF-8.
+- Updated documentation links across the project to match the new structure.
+
+### Removed
+- Deleted deprecated `doc/guides/`, `doc/manual/`, `doc/design/`, `doc/development/`, and `doc/requirement/` directories.
+- Dropped obsolete Markdown files whose names were mangled by encoding issues.
+
+### Tooling
+- Refreshed `scripts/verify_docs.py` messaging (UTF-8, clearer output) to support the new layout.
+
+---
+
 ## [5.0.7] - 2025-10-06
 
 ### Changed
