@@ -99,8 +99,6 @@ Windows用户可直接双击运行：
 
 ```
 batch_import.bat        # 快速导入所有数据
-verify_data.bat         # 验证数据质量
-comprehensive_check.bat # 详细校验
 verify_consistency.bat  # 数据一致性验证
 start_web_ui.bat       # 启动Web界面
 ```
@@ -205,8 +203,6 @@ Web界面支持：
 Forex/
 ├── 📄 启动器（根目录）
 │   ├── batch_import.bat            # 批量导入
-│   ├── verify_data.bat             # 数据验证
-│   ├── comprehensive_check.bat     # 详细校验
 │   ├── start_web_ui.bat           # Web界面
 │   └── README.md                   # 本文档
 │
@@ -858,8 +854,6 @@ FXCM 历史数据下载器
 #### 🎯 用户体验优化
 - **便捷启动器** - 根目录批处理文件
   - `batch_import.bat` - 一键批量导入
-  - `verify_data.bat` - 一键数据验证
-  - `comprehensive_check.bat` - 一键详细校验
   - `start_web_ui.bat` - 一键启动Web界面
 
 - **智能模式切换**
